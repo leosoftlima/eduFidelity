@@ -1,0 +1,39 @@
+{
+  "course": "Urban Composting Basics (fictitious)",
+  "frame_width": 1280,
+  "pages": {
+    "lesson": {
+      "file": "lesson.html",
+      "function": "expository content",
+      "brief": "Read the lesson on what can be composted and continue to the next lesson.",
+      "variants": {
+        "faithful": {},
+        "missing_essential": { "remove": ["next"] },
+        "shifted": { "style": { "tip": "position:relative;left:220px;top:36px" } },
+        "no_decorative": { "remove": ["logo", "illustration"] }
+      }
+    },
+    "quiz": {
+      "file": "quiz.html",
+      "function": "assessment",
+      "brief": "Answer the single-choice question and submit the answer.",
+      "variants": {
+        "faithful": {},
+        "missing_essential": { "remove": ["submit"] },
+        "shifted": { "style": { "hint": "position:relative;left:260px;top:40px" } },
+        "no_decorative": { "remove": ["logo", "leaf"] }
+      }
+    },
+    "overview": {
+      "file": "overview.html",
+      "function": "navigation",
+      "brief": "Find the next lesson that has not been completed and open it.",
+      "variants": {
+        "faithful": {},
+        "missing_essential": { "remove": ["lesson-3"] },
+        "shifted": { "style": { "resources": "position:relative;left:240px;top:30px" } },
+        "no_decorative": { "remove": ["logo", "badge"] }
+      }
+    }
+  }
+}

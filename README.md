@@ -1,4 +1,3 @@
-[README.md](https://github.com/user-attachments/files/34820147/README.md)
 # EduFidelity
 
 **Salience-Aware, Human-Calibrated Evaluation of LLM-Generated E-Learning Interfaces in Instructional Design Workflows**
@@ -8,6 +7,38 @@ EduFidelity is a research framework for assessing how faithfully large language 
 The framework integrates technical measurements and human judgments to support evaluation in instructional-design workflows. The evaluation is organized into four research questions (RQs), with separate data-collection and analysis stages.
 
 > **Repository status:** Research and replication package in preparation. The public repository is intended to contain reproducible inputs, data schemas, evaluation scripts, and documentation. Internal DidacticGen implementation details are not part of the public release.
+
+## Implementation status
+
+A first part of the evaluation toolkit is in the repository. It is **work in progress**,
+and **nothing it produces today is a result of the study**: the only numbers it can
+compute come from small synthetic pages written to test the pipeline.
+
+| Part of the framework | Status |
+| --- | --- |
+| Data contracts (reference representation, rendered DOM, correspondences, measurement rows) | Implemented as typed models |
+| Controlled rendering of a generated page (fixed browser, viewport, no animations, stable-state wait; failures recorded, never dropped) | Implemented |
+| Element collection from the rendered DOM | Implemented |
+| One-to-one matching between reference and rendered elements | Implemented, **parameters provisional** (not yet tuned on a verified development sample) |
+| Element Preservation, Layout Fidelity (RQ2) | Implemented |
+| SSIM (RQ2) | Implemented |
+| UIClip (RQ2) | Planned |
+| Preservation by salience category (RQ3) | Implemented (computation only; no annotation protocol yet) |
+| Human evaluation kit and inter-rater agreement (RQ1) | Planned |
+| Ordinal calibration, leave-one-domain-out validation, ablation (RQ4) | Planned |
+| Reference representation from Figma | Planned |
+
+To run the synthetic examples (Python 3.11+ and [uv](https://docs.astral.sh/uv/)):
+
+```bash
+uv sync
+uv run playwright install chromium
+uv run edufidelity examples
+uv run pytest
+```
+
+Details, the example table, design decisions and open methodological questions:
+[docs/toolkit.md](docs/toolkit.md) and [docs/engineering-plan.md](docs/engineering-plan.md).
 
 ## Research questions
 
@@ -96,7 +127,7 @@ edufidelity/
     └── README.md
 ```
 
-This is a **proposed layout**, not a claim that these files are already available.
+This is a **proposed layout**, not a claim that these files are already available. What exists today is the Python package in `src/edufidelity/`, the synthetic examples in `examples/` and the tests in `tests/`; the two will be reconciled as materials are prepared.
 
 ## Data contracts
 
@@ -120,7 +151,7 @@ The exact scales, units, matching rules, exclusion criteria, missing-value conve
 5. **Analyze pedagogical salience (RQ3).** Annotate the instructional relevance of reference elements and compute preservation outcomes by salience category.
 6. **Calibrate and validate (RQ4).** Fit the specified human-calibrated ordinal model and conduct leave-one-domain-out (LODO) evaluation, comparisons against standalone signals, and ablation studies.
 
-**Note:** Reproduction scripts, execution commands, dependency versions, and downloadable artifacts should only be added once publicly released and verified. No executable setup command is asserted here.
+**Note:** Reproduction scripts, execution commands, dependency versions, and downloadable artifacts for the study should only be added once publicly released and verified. The commands under *Implementation status* run the toolkit on synthetic examples only; they do not reproduce any study result.
 
 ## Reproducibility and responsible release
 
