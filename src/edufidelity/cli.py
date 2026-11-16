@@ -1,4 +1,4 @@
-"""Command line: ``edufidelity examples`` and ``edufidelity measure``."""
+"""Command line. ``edufidelity --help`` lists every command."""
 
 from __future__ import annotations
 
@@ -83,6 +83,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     cal.add_argument("--seed", type=int, default=7)
     cal.add_argument("--out", type=Path, default=Path("supplementary/calibration"))
 
+    from .annotation import cli as kit
+
+    kit.register(commands)
+
     single = commands.add_parser("measure", help="measure one generated page")
     single.add_argument("reference", type=Path, help="reference JSON")
     single.add_argument("reference_png", type=Path)
@@ -96,6 +100,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         scorer = UIClipScorer() if args.uiclip else None
         write_table(run_examples(args.pages, args.build, uiclip=scorer), args.out)
         return 0
+    if args.command in kit.COMMANDS:
+        return kit.run(args)
     if args.command == "calibrate":
         return _calibrate(args)
     if args.command == "perturbations":

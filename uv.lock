@@ -235,6 +235,7 @@ uiclip = [
 [package.dev-dependencies]
 dev = [
     { name = "hypothesis" },
+    { name = "krippendorff" },
     { name = "mypy" },
     { name = "pytest" },
     { name = "ruff" },
@@ -258,6 +259,7 @@ provides-extras = ["uiclip"]
 [package.metadata.requires-dev]
 dev = [
     { name = "hypothesis", specifier = ">=6.100" },
+    { name = "krippendorff", specifier = ">=0.6" },
     { name = "mypy", specifier = ">=1.11" },
     { name = "pytest", specifier = ">=8" },
     { name = "ruff", specifier = ">=0.6" },
@@ -615,6 +617,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/df/bf/f7da0350254c0ed7c72f3e33cef02e048281fec7ecec5f032d4aac52226b/jinja2-3.1.6.tar.gz", hash = "sha256:0137fb05990d35f1275a587e9aee6d56da821fc83491a0fb838183be43f66d6d", size = 245115, upload-time = "2025-03-05T20:05:02.478Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/62/a1/3d680cbfd5f4b8f15abc1d571870c5fc3e594bb582bc3b64ea099db13e56/jinja2-3.1.6-py3-none-any.whl", hash = "sha256:85ece4451f492d0c13c5dd7c13a64681a86afae63a5f347908daf103ce6d2f67", size = 134899, upload-time = "2025-03-05T20:05:00.369Z" },
+]
+
+[[package]]
+name = "krippendorff"
+version = "0.9.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/1c/bc/ca3aefd9240f0c306559fc5f74cf43f0a78c46b647aea4358ea63143d56e/krippendorff-0.9.0.tar.gz", hash = "sha256:574dd5af0dd0da54e3f6774f2cad279fbd38a92178324766a406536f1a0c8f7c", size = 18699, upload-time = "2026-10-07T04:23:17.343Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c1/38/f032217b046b9fd1b9d7acf0a574b8318b183ffd9818d47cf137d55de034/krippendorff-0.9.0-py3-none-any.whl", hash = "sha256:22ab549f5f05050080ea5c1a95be1401b64aaa01576fe61b2e8da666bc4e0034", size = 19021, upload-time = "2026-10-07T04:23:16.34Z" },
 ]
 
 [[package]]
