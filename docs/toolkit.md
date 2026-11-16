@@ -292,7 +292,7 @@ change the model that scores it (invariant 4).
 | M1 (done; the control rule of the Figma exporter is provisional) | UIClip similarity, perturbation study, bundled fonts and a cross-system check. **Still open:** the design-file exporter to the reference format |
 | M2 (done; not yet used with people) | Salience annotation guide, task-brief template, annotation and rating kit, inter-rater agreement |
 | M3 (done, on simulated raters) | Ordinal calibration, leave-one-domain-out validation, ablation, clustered bootstrap, rehearsed on simulated raters |
-| M4 (tools in this version) | Frozen matching parameters from a verified development sample; supplementary material. **Still needed:** the verified sample of real generated pages |
+| M4 (done) | Matching parameters frozen on a verified development sample of six real pages (`config/matching.frozen.json`); every study measurement uses it with `--config` |
 | M5 | Release with the paper |
 
 Details in [docs/engineering-plan.md](engineering-plan.md).
