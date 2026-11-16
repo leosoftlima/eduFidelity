@@ -113,8 +113,11 @@ class OrdinalRidge:
             [[theta0[0]], np.log(np.maximum(np.diff(theta0), 1e-3)), np.zeros(z.shape[1])]
         )
         result = minimize(
-            _objective, start, args=(z, y, self.n_levels, self.alpha, self.tau),
-            jac=True, method="L-BFGS-B",
+            _objective,
+            start,
+            args=(z, y, self.n_levels, self.alpha, self.tau),
+            jac=True,
+            method="L-BFGS-B",
             options={"maxiter": 5000, "gtol": 1e-8, "ftol": 1e-13},
         )
         self.converged_ = bool(result.success)

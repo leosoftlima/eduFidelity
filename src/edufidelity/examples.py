@@ -90,7 +90,12 @@ def run_examples(
             )
             for variant, html in variants[name].items():
                 row, correspondence = measure(
-                    renderer, reference, reference_png, html, f"{name}--{variant}", out,
+                    renderer,
+                    reference,
+                    reference_png,
+                    html,
+                    f"{name}--{variant}",
+                    out,
                     uiclip=uiclip,
                 )
                 if correspondence is not None:

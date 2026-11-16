@@ -1,0 +1,17 @@
+name: Feature
+description: A new capability of the toolkit
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What it is needed for
+    validations:
+      required: true
+  - type: dropdown
+    id: method
+    attributes:
+      label: Can it change a reported number?
+      options: ["No", "Yes: it is a methodological change (CONTRIBUTING §4)", "Not sure"]
+    validations:
+      required: true

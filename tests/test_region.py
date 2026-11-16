@@ -11,12 +11,26 @@ from edufidelity.region import RegionError, crop_reference, crop_screenshot
 
 def framed() -> Reference:
     """A 1500 x 1000 frame: a platform header and sidebar around a content region."""
+
     def el(i: str, x: int, y: int, w: int, h: int) -> RefElement:
-        return RefElement(id=i, type=ElementType.TEXT, text=i,
-                          bbox=BBox(x=x / 1500, y=y / 1000, w=w / 1500, h=h / 1000))
-    return Reference(interface_id="p", frame_width=1500, frame_height=1000, elements=[
-        el("header", 0, 0, 1500, 80), el("sidebar", 0, 80, 60, 920),
-        el("title", 100, 120, 600, 50), el("body", 100, 200, 1200, 300)])
+        return RefElement(
+            id=i,
+            type=ElementType.TEXT,
+            text=i,
+            bbox=BBox(x=x / 1500, y=y / 1000, w=w / 1500, h=h / 1000),
+        )
+
+    return Reference(
+        interface_id="p",
+        frame_width=1500,
+        frame_height=1000,
+        elements=[
+            el("header", 0, 0, 1500, 80),
+            el("sidebar", 0, 80, 60, 920),
+            el("title", 100, 120, 600, 50),
+            el("body", 100, 200, 1200, 300),
+        ],
+    )
 
 
 def test_platform_elements_are_dropped_and_boxes_rebased() -> None:

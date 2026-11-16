@@ -34,10 +34,14 @@ class Scenario:
 
 
 SCENARIOS = (
-    Scenario("salience-matters", True,
-             "raters weigh losing Essential and Supporting elements heavily"),
-    Scenario("null", False,
-             "raters ignore salience: only the visual and structural measures drive ratings"),
+    Scenario(
+        "salience-matters", True, "raters weigh losing Essential and Supporting elements heavily"
+    ),
+    Scenario(
+        "null",
+        False,
+        "raters ignore salience: only the visual and structural measures drive ratings",
+    ),
 )
 
 
@@ -65,8 +69,9 @@ def simulate(
                 sup = 1.0 if rng.random() < 0.5 else rng.uniform(0.2, 1.0)
                 dec = 1.0 if rng.random() < 0.4 else rng.uniform(0.0, 1.0)
                 layout = float(np.clip(rng.uniform(0.1, 1.0), 0, 1))
-                ep_f1 = float(np.clip(0.45 * ess + 0.3 * sup + 0.25 * dec
-                                      + rng.normal(0, 0.03), 0, 1))
+                ep_f1 = float(
+                    np.clip(0.45 * ess + 0.3 * sup + 0.25 * dec + rng.normal(0, 0.03), 0, 1)
+                )
                 ssim = float(np.clip(0.80 + 0.15 * layout + rng.normal(0, 0.03), 0, 1))
                 uiclip = float(np.clip(0.95 + 0.04 * rng.random() + rng.normal(0, 0.01), 0, 1))
                 if salience_matters:
@@ -74,17 +79,31 @@ def simulate(
                 else:
                     signal = 2.5 * layout + 8.0 * ssim + 2.0 * ep_f1
                 latent.append(signal + domain_shift + interface_effect)
-                rows.append(MeasureRow(
-                    interface_id=interface, generated_id=f"{interface}--g{j}", domain=domain,
-                    ssim=ssim, uiclip=uiclip, ep_f1=ep_f1, layout_fidelity=layout,
-                    ped_essential=ess, ped_supporting=sup, ped_decorative=dec,
-                ))
+                rows.append(
+                    MeasureRow(
+                        interface_id=interface,
+                        generated_id=f"{interface}--g{j}",
+                        domain=domain,
+                        ssim=ssim,
+                        uiclip=uiclip,
+                        ep_f1=ep_f1,
+                        layout_fidelity=layout,
+                        ped_essential=ess,
+                        ped_supporting=sup,
+                        ped_decorative=dec,
+                    )
+                )
     values = np.array(latent)
     cuts = np.quantile(values, [0.12, 0.35, 0.62, 0.85])  # spread ratings over 1..5
     ratings: list[Rating] = []
     for row, value in zip(rows, values, strict=True):
         for rater in rng.choice(n_raters, size=raters_per_page, replace=False):
             noisy = value + leniency[rater] + rng.logistic(0, 0.35)
-            ratings.append(Rating(generated_id=row.generated_id, rater_id=f"rater-{rater}",
-                                  rating=int(np.searchsorted(cuts, noisy)) + 1))
+            ratings.append(
+                Rating(
+                    generated_id=row.generated_id,
+                    rater_id=f"rater-{rater}",
+                    rating=int(np.searchsorted(cuts, noisy)) + 1,
+                )
+            )
     return rows, ratings

@@ -37,6 +37,7 @@ KRIPPENDORFF_2011 = [
 
 # ------------------------------------------------------------------ agreement
 
+
 @pytest.mark.parametrize(
     ("level", "published"),
     [("nominal", 0.743), ("ordinal", 0.815), ("interval", 0.849), ("ratio", 0.797)],
@@ -66,9 +67,17 @@ def test_alpha_is_one_under_perfect_agreement_and_undefined_without_variation() 
 
 # ------------------------------------------------------------------ salience sheets
 
+
 def reference(n: int = 4) -> Reference:
-    elements = [RefElement(id=f"e{i}", type=ElementType.TEXT, text=f"element {i}",
-                           bbox=BBox(x=0.1, y=0.1 * i, w=0.5, h=0.05)) for i in range(n)]
+    elements = [
+        RefElement(
+            id=f"e{i}",
+            type=ElementType.TEXT,
+            text=f"element {i}",
+            bbox=BBox(x=0.1, y=0.1 * i, w=0.5, h=0.05),
+        )
+        for i in range(n)
+    ]
     return Reference(interface_id="page", frame_width=1280, frame_height=800, elements=elements)
 
 
@@ -138,29 +147,42 @@ def test_resolution_reports_agreement() -> None:
 
 
 def test_brief_renders_every_field() -> None:
-    brief = TaskBrief(interface_id="quiz", function="assessment", objective="o",
-                      expected_action="act", completion_criterion="done")
+    brief = TaskBrief(
+        interface_id="quiz",
+        function="assessment",
+        objective="o",
+        expected_action="act",
+        completion_criterion="done",
+    )
     text = brief.to_markdown()
     assert all(part in text for part in ("quiz", "assessment", "act", "done"))
 
 
 # ------------------------------------------------------------------ blind assignment
 
+
 def pages(n_interfaces: int = 6, per_interface: int = 3) -> list[PageToRate]:
-    return [PageToRate(generated_id=f"i{i}-g{j}", interface_id=f"i{i}", domain="d")
-            for i in range(n_interfaces) for j in range(per_interface)]
+    return [
+        PageToRate(generated_id=f"i{i}-g{j}", interface_id=f"i{i}", domain="d")
+        for i in range(n_interfaces)
+        for j in range(per_interface)
+    ]
 
 
-RATERS = [Rater(rater_id=f"{group}{k}", group=group)
-          for group in ("education", "design", "computing") for k in range(3)]
+RATERS = [
+    Rater(rater_id=f"{group}{k}", group=group)
+    for group in ("education", "design", "computing")
+    for k in range(3)
+]
 
 
 def test_every_page_gets_each_perspective_once() -> None:
     result = assign(pages(), RATERS, seed=1)
     group_of = {r.rater_id: r.group for r in RATERS}
     for page in pages():
-        groups = Counter(group_of[a.rater_id] for a in result
-                         if a.generated_id == page.generated_id)
+        groups = Counter(
+            group_of[a.rater_id] for a in result if a.generated_id == page.generated_id
+        )
         assert groups == {"education": 1, "design": 1, "computing": 1}
 
 

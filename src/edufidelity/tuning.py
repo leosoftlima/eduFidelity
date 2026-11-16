@@ -35,18 +35,25 @@ GRID: dict[str, tuple[float, ...]] = {
 
 
 def evaluate(config: MatchConfig, items: Sequence[DevItem]) -> PairScores:
-    return pooled([
-        pair_scores(match_optimal(i.reference.elements, i.snapshot.elements, config), i.verified)
-        for i in items
-    ])
+    return pooled(
+        [
+            pair_scores(
+                match_optimal(i.reference.elements, i.snapshot.elements, config), i.verified
+            )
+            for i in items
+        ]
+    )
 
 
 def evaluate_baseline(items: Sequence[DevItem], min_iou: float = 0.5) -> PairScores:
-    return pooled([
-        pair_scores(match_greedy_iou(i.reference.elements, i.snapshot.elements, min_iou),
-                    i.verified)
-        for i in items
-    ])
+    return pooled(
+        [
+            pair_scores(
+                match_greedy_iou(i.reference.elements, i.snapshot.elements, min_iou), i.verified
+            )
+            for i in items
+        ]
+    )
 
 
 def configurations(grid: Mapping[str, Iterable[float]] = GRID) -> list[MatchConfig]:
@@ -77,9 +84,11 @@ class TuningResult:
 def tune(items: Sequence[DevItem], grid: Mapping[str, Iterable[float]] = GRID) -> TuningResult:
     rows = [(config, evaluate(config, items)) for config in configurations(grid)]
     best, best_scores = min(
-        rows, key=lambda r: (-(r[1].f1 or 0.0), _distance_to_default(r[0]), r[0].digest()))
-    return TuningResult(rows, best, best_scores, evaluate(MatchConfig(), items),
-                        evaluate_baseline(items))
+        rows, key=lambda r: (-(r[1].f1 or 0.0), _distance_to_default(r[0]), r[0].digest())
+    )
+    return TuningResult(
+        rows, best, best_scores, evaluate(MatchConfig(), items), evaluate_baseline(items)
+    )
 
 
 class FrozenMatching(BaseModel):
@@ -112,12 +121,16 @@ def freeze(
     if overlap:
         raise OverlapError(f"development sample overlaps the study: {', '.join(overlap)}")
     return FrozenMatching(
-        config=result.best, config_digest=result.best.digest(),
+        config=result.best,
+        config_digest=result.best.digest(),
         dev_sample_digest=sample_digest(items),
         dev_sources=sorted({i.verified.source for i in items}),
-        n_items=len(items), n_pairs=sum(len(i.verified.pairs) for i in items),
-        precision=result.best_scores.precision, recall=result.best_scores.recall,
-        f1=result.best_scores.f1, frozen_at=datetime.now(UTC).isoformat(timespec="seconds"),
+        n_items=len(items),
+        n_pairs=sum(len(i.verified.pairs) for i in items),
+        precision=result.best_scores.precision,
+        recall=result.best_scores.recall,
+        f1=result.best_scores.f1,
+        frozen_at=datetime.now(UTC).isoformat(timespec="seconds"),
         note=note,
     )
 
@@ -140,29 +153,44 @@ def _fmt(value: float | None) -> str:
 def report(result: TuningResult, items: Sequence[DevItem], banner: str) -> str:
     sources = ", ".join(sorted({i.verified.source for i in items}))
     lines = [
-        "# Matching: tuning on the development sample", "", banner, "",
+        "# Matching: tuning on the development sample",
+        "",
+        banner,
+        "",
         f"{len(items)} generated pages, {sum(len(i.verified.pairs) for i in items)} verified "
-        f"pairs (source: {sources}). Development sample digest `{sample_digest(items)}`.", "",
-        "| Matcher | Pair precision | Pair recall | Pair F1 |", "|---|---:|---:|---:|",
+        f"pairs (source: {sources}). Development sample digest `{sample_digest(items)}`.",
+        "",
+        "| Matcher | Pair precision | Pair recall | Pair F1 |",
+        "|---|---:|---:|---:|",
     ]
-    for label, s in (("Greedy IoU baseline (IoU ≥ 0.5)", result.baseline_scores),
-                     ("Optimal, provisional defaults", result.default_scores),
-                     ("Optimal, best on the grid", result.best_scores)):
+    for label, s in (
+        ("Greedy IoU baseline (IoU ≥ 0.5)", result.baseline_scores),
+        ("Optimal, provisional defaults", result.default_scores),
+        ("Optimal, best on the grid", result.best_scores),
+    ):
         lines.append(f"| {label} | {_fmt(s.precision)} | {_fmt(s.recall)} | {_fmt(s.f1)} |")
     best = result.best
     top = result.best_scores.f1 or 0.0
     ties = sum((s.f1 or 0.0) >= top - 1e-12 for _, s in result.rows)
-    lines += ["", "Best configuration "
-              f"(digest `{best.digest()}`): text similarity floor {best.text_similarity_floor}, "
-              f"maximum cost {best.max_cost}, content weight {best.content_weight}, "
-              f"spatial weight {best.spatial_weight}. Ties are broken toward the defaults.", "",
-              f"{ties} of {len(result.rows)} configurations reach the best F1. When many tie, the "
-              "sample cannot tell them apart, and the choice falls back to the defaults.", "",
-              f"## Every configuration ({len(result.rows)})", "",
-              "| Text floor | Max cost | Content weight | Precision | Recall | F1 |",
-              "|---:|---:|---:|---:|---:|---:|"]
+    lines += [
+        "",
+        "Best configuration "
+        f"(digest `{best.digest()}`): text similarity floor {best.text_similarity_floor}, "
+        f"maximum cost {best.max_cost}, content weight {best.content_weight}, "
+        f"spatial weight {best.spatial_weight}. Ties are broken toward the defaults.",
+        "",
+        f"{ties} of {len(result.rows)} configurations reach the best F1. When many tie, the "
+        "sample cannot tell them apart, and the choice falls back to the defaults.",
+        "",
+        f"## Every configuration ({len(result.rows)})",
+        "",
+        "| Text floor | Max cost | Content weight | Precision | Recall | F1 |",
+        "|---:|---:|---:|---:|---:|---:|",
+    ]
     for config, s in sorted(result.rows, key=lambda r: -(r[1].f1 or 0.0)):
-        lines.append(f"| {config.text_similarity_floor} | {config.max_cost} | "
-                     f"{config.content_weight} | {_fmt(s.precision)} | {_fmt(s.recall)} | "
-                     f"{_fmt(s.f1)} |")
+        lines.append(
+            f"| {config.text_similarity_floor} | {config.max_cost} | "
+            f"{config.content_weight} | {_fmt(s.precision)} | {_fmt(s.recall)} | "
+            f"{_fmt(s.f1)} |"
+        )
     return "\n".join(lines) + "\n"

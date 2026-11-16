@@ -62,8 +62,9 @@ def test_a_defect_in_one_band_shows_in_the_worst_band(tmp_path: Path) -> None:
     reference = Image.new("RGB", (1280, 4000), (240, 240, 240))
     damaged = reference.copy()
     damaged.paste((0, 0, 0), (0, 3000, 1280, 4000))  # only the bottom of the page changes
-    comparison = scorer.compare(save(reference, tmp_path / "r.png"),
-                                save(damaged, tmp_path / "g.png"))
+    comparison = scorer.compare(
+        save(reference, tmp_path / "r.png"), save(damaged, tmp_path / "g.png")
+    )
     assert comparison.worst_band is not None
     assert comparison.worst_band < comparison.similarity < 1.0
     assert comparison.band_similarities[0] == pytest.approx(1.0)
@@ -103,8 +104,9 @@ def test_real_checkpoint_separates_a_page_from_its_blank_version(tmp_path: Path)
         page.paste((30 + 25 * i, 90, 160), (64, 60 + 100 * i, 900, 120 + 100 * i))
     scorer = UIClipScorer()
     same = scorer.similarity(save(page, tmp_path / "p.png"), tmp_path / "p.png")
-    blank = scorer.similarity(tmp_path / "p.png",
-                              save(Image.new("RGB", (1280, 900), "white"), tmp_path / "b.png"))
+    blank = scorer.similarity(
+        tmp_path / "p.png", save(Image.new("RGB", (1280, 900), "white"), tmp_path / "b.png")
+    )
     assert same == pytest.approx(1.0, abs=1e-5)
     assert blank < same
     assert scorer.checkpoint.startswith("biglab/uiclip")
@@ -113,4 +115,3 @@ def test_real_checkpoint_separates_a_page_from_its_blank_version(tmp_path: Path)
 def test_checkpoint_of_the_default_scorer_is_the_pinned_one() -> None:
     scorer = UIClipScorer()
     assert scorer.checkpoint.startswith("biglab/uiclip") and "@505d473" in scorer.checkpoint
-

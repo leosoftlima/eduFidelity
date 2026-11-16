@@ -77,7 +77,8 @@ def assign(
             if len(eligible) < per_group:
                 raise AssignmentError(
                     f"{page.generated_id}: group {group!r} has {len(eligible)} eligible "
-                    f"raters, {per_group} needed (annotators of {page.interface_id} excluded)")
+                    f"raters, {per_group} needed (annotators of {page.interface_id} excluded)"
+                )
             for rater in sorted(eligible, key=lambda r: (load[r], tiebreak[r]))[:per_group]:
                 chosen[rater].append(page.generated_id)
                 load[rater] += 1
@@ -87,8 +88,9 @@ def assign(
     assignments = []
     for rater in sorted(chosen):
         sheet = [chosen[rater][int(i)] for i in rng.permutation(len(chosen[rater]))]
-        assignments += [Assignment(rater, code_of[g], g, position)
-                        for position, g in enumerate(sheet, start=1)]
+        assignments += [
+            Assignment(rater, code_of[g], g, position) for position, g in enumerate(sheet, start=1)
+        ]
     return assignments
 
 
@@ -118,8 +120,9 @@ def write_sheets(assignments: Sequence[Assignment], out_dir: Path) -> Path:
             writer = csv.DictWriter(handle, fieldnames=SHEET_FIELDS, lineterminator="\n")
             writer.writeheader()
             for a in sorted(items, key=lambda a: a.position):
-                writer.writerow({"position": a.position, "code": a.code, "rating": "",
-                                 "comment": ""})
+                writer.writerow(
+                    {"position": a.position, "code": a.code, "rating": "", "comment": ""}
+                )
     key = out_dir / "key.csv"
     with key.open("w", newline="", encoding="utf-8") as handle:
         key_writer = csv.writer(handle, lineterminator="\n")
@@ -153,8 +156,7 @@ def collect(out_dir: Path, n_levels: int = 5) -> Collected:
                 rating = int(value)
                 if not 1 <= rating <= n_levels:
                     raise ValueError(f"{sheet.name}: rating {rating} outside 1..{n_levels}")
-                ratings.append(Rating(generated_id=key[code], rater_id=sheet.stem,
-                                      rating=rating))
+                ratings.append(Rating(generated_id=key[code], rater_id=sheet.stem, rating=rating))
     return Collected(ratings, missing)
 
 

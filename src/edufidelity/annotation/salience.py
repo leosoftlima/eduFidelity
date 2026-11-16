@@ -36,16 +36,21 @@ class TaskBrief(BaseModel):
     completion_criterion: str  # how one knows the activity is complete
 
     def to_markdown(self) -> str:
-        return "\n".join([
-            f"# Task brief · {self.interface_id}", "",
-            f"- **Function of the page:** {self.function}",
-            f"- **Objective:** {self.objective}",
-            f"- **Expected action:** {self.expected_action}",
-            f"- **Completion criterion:** {self.completion_criterion}", "",
-            "Label each element with the guide in `docs/annotation/salience-guide.md`. "
-            "Ask of each one: without it, could the learner still interpret, perform, "
-            "navigate or complete this activity?", "",
-        ])
+        return "\n".join(
+            [
+                f"# Task brief · {self.interface_id}",
+                "",
+                f"- **Function of the page:** {self.function}",
+                f"- **Objective:** {self.objective}",
+                f"- **Expected action:** {self.expected_action}",
+                f"- **Completion criterion:** {self.completion_criterion}",
+                "",
+                "Label each element with the guide in `docs/annotation/salience-guide.md`. "
+                "Ask of each one: without it, could the learner still interpret, perform, "
+                "navigate or complete this activity?",
+                "",
+            ]
+        )
 
 
 class SheetError(ValueError):
@@ -59,11 +64,19 @@ def write_sheet(reference: Reference, target: Path) -> None:
         writer = csv.DictWriter(handle, fieldnames=SHEET_FIELDS, lineterminator="\n")
         writer.writeheader()
         for e in reference.elements:
-            writer.writerow({
-                "element_id": e.id, "type": e.type.value, "text": e.text[:120],
-                "x": f"{e.bbox.x:.3f}", "y": f"{e.bbox.y:.3f}",
-                "w": f"{e.bbox.w:.3f}", "h": f"{e.bbox.h:.3f}", "salience": "", "note": "",
-            })
+            writer.writerow(
+                {
+                    "element_id": e.id,
+                    "type": e.type.value,
+                    "text": e.text[:120],
+                    "x": f"{e.bbox.x:.3f}",
+                    "y": f"{e.bbox.y:.3f}",
+                    "w": f"{e.bbox.w:.3f}",
+                    "h": f"{e.bbox.h:.3f}",
+                    "salience": "",
+                    "note": "",
+                }
+            )
 
 
 def read_sheet(path: Path, reference: Reference) -> dict[str, Salience]:
@@ -127,10 +140,16 @@ def resolve(
             labels[element] = top
         else:
             pending.append(element)
-    matrix = np.array([[SALIENCE_ORDER[sheet[e]] if e in sheet else np.nan for e in ids]
-                       for sheet in sheets.values()], dtype=np.float64)
+    matrix = np.array(
+        [
+            [SALIENCE_ORDER[sheet[e]] if e in sheet else np.nan for e in ids]
+            for sheet in sheets.values()
+        ],
+        dtype=np.float64,
+    )
     return Resolution(
-        labels=labels, adjudication=pending,
+        labels=labels,
+        adjudication=pending,
         adjudicated={k: v for k, v in adjudicated.items() if k in ids},
         alpha_nominal=krippendorff_alpha(matrix, "nominal"),
         alpha_ordinal=krippendorff_alpha(matrix, "ordinal"),
@@ -142,8 +161,9 @@ def apply_labels(reference: Reference, resolution: Resolution) -> Reference:
     """The labeled reference. Refuses while any element awaits adjudication."""
     if not resolution.complete:
         raise SheetError(f"awaiting adjudication: {', '.join(resolution.adjudication)}")
-    elements = [e.model_copy(update={"salience": resolution.labels[e.id]})
-                for e in reference.elements]
+    elements = [
+        e.model_copy(update={"salience": resolution.labels[e.id]}) for e in reference.elements
+    ]
     return reference.model_copy(update={"elements": elements})
 
 

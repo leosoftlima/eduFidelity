@@ -30,8 +30,13 @@ from .render import Renderer
 
 VISUAL = ("ssim", "uiclip")
 MEASURES = (
-    "ssim", "uiclip", "ep_f1", "layout_fidelity",
-    "ped_essential", "ped_supporting", "ped_decorative",
+    "ssim",
+    "uiclip",
+    "ep_f1",
+    "layout_fidelity",
+    "ped_essential",
+    "ped_supporting",
+    "ped_decorative",
 )
 
 
@@ -47,12 +52,27 @@ class Perturbation:
 
 PERTURBATIONS: tuple[Perturbation, ...] = (
     Perturbation("identity", "identity", 0, {}),
-    Perturbation("remove-decorative", "remove", 1, {"remove": "decorative"},
-                 (*VISUAL, "ep_f1", "layout_fidelity", "ped_decorative")),
-    Perturbation("remove-supporting", "remove", 2, {"remove": "supporting"},
-                 (*VISUAL, "ep_f1", "layout_fidelity", "ped_supporting")),
-    Perturbation("remove-essential", "remove", 3, {"remove": "essential"},
-                 (*VISUAL, "ep_f1", "layout_fidelity", "ped_essential")),
+    Perturbation(
+        "remove-decorative",
+        "remove",
+        1,
+        {"remove": "decorative"},
+        (*VISUAL, "ep_f1", "layout_fidelity", "ped_decorative"),
+    ),
+    Perturbation(
+        "remove-supporting",
+        "remove",
+        2,
+        {"remove": "supporting"},
+        (*VISUAL, "ep_f1", "layout_fidelity", "ped_supporting"),
+    ),
+    Perturbation(
+        "remove-essential",
+        "remove",
+        3,
+        {"remove": "essential"},
+        (*VISUAL, "ep_f1", "layout_fidelity", "ped_essential"),
+    ),
     Perturbation("shift-8px", "shift", 1, {"shift": 8}, (*VISUAL, "layout_fidelity")),
     Perturbation("shift-32px", "shift", 2, {"shift": 32}, (*VISUAL, "layout_fidelity")),
     Perturbation("shift-128px", "shift", 3, {"shift": 128}, (*VISUAL, "layout_fidelity")),
@@ -60,8 +80,9 @@ PERTURBATIONS: tuple[Perturbation, ...] = (
     Perturbation("hue-180deg", "recolor", 2, {"filter": "hue-rotate(180deg)"}, VISUAL),
     Perturbation("serif-font", "font", 1, {"font": "EduSerif"}, (*VISUAL, "layout_fidelity")),
     Perturbation("zoom-115", "zoom", 1, {"zoom": 1.15}, (*VISUAL, "layout_fidelity")),
-    Perturbation("truncate-half", "truncate", 1, {"truncate": 0.5},
-                 (*VISUAL, "ep_f1", "layout_fidelity")),
+    Perturbation(
+        "truncate-half", "truncate", 1, {"truncate": 0.5}, (*VISUAL, "ep_f1", "layout_fidelity")
+    ),
     Perturbation("blank", "blank", 1, {"blank": True}, MEASURES),
 )
 
@@ -171,15 +192,25 @@ def run_perturbations(
             out = build_dir / name
             reference_png = out / "reference.png"
             reference = build_reference_from_html(
-                renderer, pages_dir / entry["file"], interface_id=name,
-                frame_width=manifest["frame_width"], screenshot=reference_png,
-                domain="synthetic", course=manifest["course"],
+                renderer,
+                pages_dir / entry["file"],
+                interface_id=name,
+                frame_width=manifest["frame_width"],
+                screenshot=reference_png,
+                domain="synthetic",
+                course=manifest["course"],
             )
             for perturbation in perturbations:
                 generated_id = f"{name}--{perturbation.name}"
-                row, _ = measure(renderer, reference, reference_png,
-                                 pages[name][perturbation.name], generated_id, out,
-                                 uiclip=uiclip)
+                row, _ = measure(
+                    renderer,
+                    reference,
+                    reference_png,
+                    pages[name][perturbation.name],
+                    generated_id,
+                    out,
+                    uiclip=uiclip,
+                )
                 rows.append(PerturbationRow(name, perturbation, row, out / f"{generated_id}.png"))
     return rows
 
@@ -217,11 +248,16 @@ def verdicts(rows: Sequence[PerturbationRow]) -> list[Verdict]:
         if r.perturbation.family == "identity":
             continue
         for name in MEASURES:
-            found.append(Verdict(
-                page=r.page, perturbation=r.perturbation.name, measure=name,
-                expected_drop=name in r.perturbation.should_drop,
-                identity=identity[r.page].value(name), value=r.value(name),
-            ))
+            found.append(
+                Verdict(
+                    page=r.page,
+                    perturbation=r.perturbation.name,
+                    measure=name,
+                    expected_drop=name in r.perturbation.should_drop,
+                    identity=identity[r.page].value(name),
+                    value=r.value(name),
+                )
+            )
     return found
 
 
@@ -231,8 +267,10 @@ def monotonicity(rows: Sequence[PerturbationRow]) -> list[tuple[str, str, str, b
     pages = sorted({r.page for r in rows})
     for family in ("shift", "recolor"):
         for page in pages:
-            graded = sorted((r for r in rows if r.page == page and r.perturbation.family == family),
-                            key=lambda r: r.perturbation.level)
+            graded = sorted(
+                (r for r in rows if r.page == page and r.perturbation.family == family),
+                key=lambda r: r.perturbation.level,
+            )
             for name in MEASURES:
                 values = [r.value(name) for r in graded]
                 if len(values) < 2 or any(v is None for v in values):
@@ -250,16 +288,28 @@ def write_report(
     rows: Sequence[PerturbationRow], out_dir: Path, *, sheet_page: str = "lesson"
 ) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
-    fields = ["page", "perturbation", "family", "level", *MEASURES, "uiclip_worst_band",
-              "uiclip_checkpoint", "status"]
+    fields = [
+        "page",
+        "perturbation",
+        "family",
+        "level",
+        *MEASURES,
+        "uiclip_worst_band",
+        "uiclip_checkpoint",
+        "status",
+    ]
     with (out_dir / "perturbations.csv").open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         for r in rows:
-            record: dict[str, Any] = {"page": r.page, "perturbation": r.perturbation.name,
-                                      "family": r.perturbation.family,
-                                      "level": r.perturbation.level, "status": r.row.status,
-                                      "uiclip_checkpoint": r.row.uiclip_checkpoint}
+            record: dict[str, Any] = {
+                "page": r.page,
+                "perturbation": r.perturbation.name,
+                "family": r.perturbation.family,
+                "level": r.perturbation.level,
+                "status": r.row.status,
+                "uiclip_checkpoint": r.row.uiclip_checkpoint,
+            }
             for name in (*MEASURES, "uiclip_worst_band"):
                 value = getattr(r.row, name)
                 record[name] = "" if value is None else f"{value:.4f}"
@@ -296,26 +346,41 @@ def write_report(
             text = _fmt(mean(present)) if present else "–"
             cells.append(f"**{text}**" if name in p.should_drop else text)
         lines.append(f"| {p.name} | " + " | ".join(cells) + " |")
-    lines += ["", "Bold: the measure is expected to fall for that perturbation (expectations "
-              "are fixed in `perturbations.py` before running).", ""]
+    lines += [
+        "",
+        "Bold: the measure is expected to fall for that perturbation (expectations "
+        "are fixed in `perturbations.py` before running).",
+        "",
+    ]
 
     lines += ["## Where a measure did not behave as expected", ""]
     misses = [v for v in found if v.as_expected is False]
     if not misses:
         lines.append("None: every measure fell where expected and stayed put elsewhere.")
     else:
-        lines += ["| Page | Perturbation | Measure | Expected | Identity | Value |",
-                  "|---|---|---|---|---:|---:|"]
+        lines += [
+            "| Page | Perturbation | Measure | Expected | Identity | Value |",
+            "|---|---|---|---|---:|---:|",
+        ]
         for v in misses:
             expected = "drop" if v.expected_drop else "no drop"
-            lines.append(f"| {v.page} | {v.perturbation} | {v.measure} | {expected} | "
-                         f"{_fmt(v.identity)} | {_fmt(v.value)} |")
+            lines.append(
+                f"| {v.page} | {v.perturbation} | {v.measure} | {expected} | "
+                f"{_fmt(v.identity)} | {_fmt(v.value)} |"
+            )
     checked = [v for v in found if v.as_expected is not None]
-    lines += ["", f"{sum(v.as_expected is True for v in checked)} of {len(checked)} checks "
-              "as expected.", ""]
+    lines += [
+        "",
+        f"{sum(v.as_expected is True for v in checked)} of {len(checked)} checks as expected.",
+        "",
+    ]
 
-    lines += ["## Graded perturbations", "",
-              "A measure should not improve as the same defect gets stronger.", ""]
+    lines += [
+        "## Graded perturbations",
+        "",
+        "A measure should not improve as the same defect gets stronger.",
+        "",
+    ]
     broken = [g for g in graded if not g[3]]
     if not broken:
         lines.append(f"Non-increasing in all {len(graded)} graded series.")

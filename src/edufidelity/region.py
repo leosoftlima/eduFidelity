@@ -37,16 +37,28 @@ def crop_reference(reference: Reference, region: tuple[int, int, int, int]) -> R
         cx, cy = (b.x + b.w / 2) * fw, (b.y + b.h / 2) * fh
         if not (rx <= cx <= rx + rw and ry <= cy <= ry + rh):
             continue
-        kept.append(element.model_copy(update={"bbox": BBox(
-            x=(b.x * fw - rx) / rw, y=(b.y * fh - ry) / rh, w=b.w * fw / rw, h=b.h * fh / rh)}))
+        kept.append(
+            element.model_copy(
+                update={
+                    "bbox": BBox(
+                        x=(b.x * fw - rx) / rw,
+                        y=(b.y * fh - ry) / rh,
+                        w=b.w * fw / rw,
+                        h=b.h * fh / rh,
+                    )
+                }
+            )
+        )
     if not kept:
         raise RegionError("no element of the reference lies inside the region")
-    return reference.model_copy(update={
-        "elements": kept, "frame_width": rw, "frame_height": rh, "content_region": region})
+    return reference.model_copy(
+        update={"elements": kept, "frame_width": rw, "frame_height": rh, "content_region": region}
+    )
 
 
-def crop_screenshot(source: Path, region: tuple[int, int, int, int], target: Path,
-                    frame_width: int) -> None:
+def crop_screenshot(
+    source: Path, region: tuple[int, int, int, int], target: Path, frame_width: int
+) -> None:
     """Crop the reference screenshot; it may be exported at a multiple of the frame size."""
     with Image.open(source) as image:
         scale = image.width / frame_width

@@ -44,8 +44,11 @@ def grouped_folds(groups: NDArray[np.str_], n_folds: int, seed: int) -> list[NDA
 
 
 def select_alpha(
-    data: CalibrationData, predictors: Sequence[str], alphas: Sequence[float] = ALPHAS,
-    n_folds: int = 5, seed: int = 0,
+    data: CalibrationData,
+    predictors: Sequence[str],
+    alphas: Sequence[float] = ALPHAS,
+    n_folds: int = 5,
+    seed: int = 0,
 ) -> float:
     losses = []
     for alpha in alphas:
@@ -62,12 +65,13 @@ def select_alpha(
 
 
 def fit_calibrated(
-    data: CalibrationData, predictors: Sequence[str], alphas: Sequence[float] = ALPHAS,
+    data: CalibrationData,
+    predictors: Sequence[str],
+    alphas: Sequence[float] = ALPHAS,
     seed: int = 0,
 ) -> OrdinalRidge:
     alpha = select_alpha(data, predictors, alphas, seed=seed)
-    return OrdinalRidge(n_levels=data.n_levels, alpha=alpha).fit(
-        *data.ratings_matrix(predictors))
+    return OrdinalRidge(n_levels=data.n_levels, alpha=alpha).fit(*data.ratings_matrix(predictors))
 
 
 @dataclass
@@ -100,8 +104,10 @@ class LodoResult:
 
 
 def lodo(
-    data: CalibrationData, predictors: Sequence[str] = PREDICTORS_6,
-    alphas: Sequence[float] = ALPHAS, seed: int = 0,
+    data: CalibrationData,
+    predictors: Sequence[str] = PREDICTORS_6,
+    alphas: Sequence[float] = ALPHAS,
+    seed: int = 0,
 ) -> LodoResult:
     results, ids, predicted, human, page_domain = [], [], [], [], []
     for domain in data.domains:
@@ -111,19 +117,29 @@ def lodo(
         pred = 1.0 + model.expected_level(test.pages_matrix(predictors))
         truth = test.human_mean()
         rated = ~np.isnan(truth)
-        results.append(DomainResult(
-            domain=domain, alpha=model.alpha,
-            spearman=spearman(pred[rated], truth[rated]),
-            mae=float(np.mean(np.abs(pred[rated] - truth[rated]))),
-            n_pages=int(rated.sum()), absent_levels=model.absent_levels_, model=model,
-        ))
+        results.append(
+            DomainResult(
+                domain=domain,
+                alpha=model.alpha,
+                spearman=spearman(pred[rated], truth[rated]),
+                mae=float(np.mean(np.abs(pred[rated] - truth[rated]))),
+                n_pages=int(rated.sum()),
+                absent_levels=model.absent_levels_,
+                model=model,
+            )
+        )
         ids.append(test.page_ids[rated])
         predicted.append(pred[rated])
         human.append(truth[rated])
         page_domain.append(test.domain[rated])
-    return LodoResult(tuple(predictors), results, np.concatenate(ids),
-                      np.concatenate(predicted), np.concatenate(human),
-                      np.concatenate(page_domain))
+    return LodoResult(
+        tuple(predictors),
+        results,
+        np.concatenate(ids),
+        np.concatenate(predicted),
+        np.concatenate(human),
+        np.concatenate(page_domain),
+    )
 
 
 def standalone(data: CalibrationData) -> dict[str, dict[str, float]]:
@@ -155,8 +171,9 @@ class Ablation:
 
 
 def ablation(data: CalibrationData, alphas: Sequence[float] = ALPHAS, seed: int = 0) -> Ablation:
-    return Ablation(six=lodo(data, PREDICTORS_6, alphas, seed),
-                    four=lodo(data, PREDICTORS_4, alphas, seed))
+    return Ablation(
+        six=lodo(data, PREDICTORS_6, alphas, seed), four=lodo(data, PREDICTORS_4, alphas, seed)
+    )
 
 
 @dataclass
@@ -183,7 +200,9 @@ class BootstrapResult:
 
 
 def bootstrap(
-    data: CalibrationData, n_resamples: int = 200, seed: int = 0,
+    data: CalibrationData,
+    n_resamples: int = 200,
+    seed: int = 0,
     alphas: Sequence[float] = ALPHAS,
 ) -> BootstrapResult:
     """Resample interfaces within each domain; rerun calibration and LODO each time."""
@@ -191,8 +210,11 @@ def bootstrap(
     by_domain = {d: sorted(set(data.interface[data.domain == d].tolist())) for d in data.domains}
     s6, s4, m6, m4 = [], [], [], []
     for b in range(n_resamples):
-        picks = [str(name) for d in data.domains
-                 for name in rng.choice(by_domain[d], size=len(by_domain[d]), replace=True)]
+        picks = [
+            str(name)
+            for d in data.domains
+            for name in rng.choice(by_domain[d], size=len(by_domain[d]), replace=True)
+        ]
         sample = data.take_interfaces(picks)
         result = ablation(sample, alphas, seed=seed + b)
         s6.append(result.six.mean_spearman)

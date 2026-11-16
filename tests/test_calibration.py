@@ -43,6 +43,7 @@ def null_data() -> CalibrationData:
 
 # ------------------------------------------------------------------ the ordinal model
 
+
 def test_analytic_gradient_matches_numerical() -> None:
     x, y = ordinal_sample()
     params = np.random.default_rng(1).normal(size=4 + 3) * 0.3
@@ -111,6 +112,7 @@ def test_preprocessing_uses_training_statistics_only() -> None:
 
 # ------------------------------------------------------------------ validation procedure
 
+
 def test_folds_never_split_an_interface(salience_data: CalibrationData) -> None:
     folds = grouped_folds(salience_data.interface, 5, seed=3)
     for name in set(salience_data.interface.tolist()):
@@ -127,8 +129,12 @@ def test_held_out_domain_does_not_leak_into_its_model(salience_data: Calibration
     for values in altered_features.values():
         values[held] = values[held] * 100 + 7
     altered = CalibrationData(
-        salience_data.page_ids, salience_data.interface, salience_data.domain,
-        altered_features, salience_data.rating_page, salience_data.rating_level,
+        salience_data.page_ids,
+        salience_data.interface,
+        salience_data.domain,
+        altered_features,
+        salience_data.rating_page,
+        salience_data.rating_level,
     )
     second = lodo(altered)
     a = next(d for d in first.domains if d.domain == "biology").model
@@ -168,10 +174,12 @@ def test_resampled_interfaces_become_distinct_clusters(salience_data: Calibratio
     sample = salience_data.take_interfaces([name, name])
     assert len(set(sample.interface.tolist())) == 2
     assert len(sample.rating_level) == 2 * int(
-        np.sum(salience_data.interface[salience_data.rating_page] == name))
+        np.sum(salience_data.interface[salience_data.rating_page] == name)
+    )
 
 
 # ------------------------------------------------------------------ data contracts
+
 
 def test_simulation_is_deterministic() -> None:
     a_rows, a_ratings = simulate(11)
@@ -186,9 +194,12 @@ def test_ratings_of_unknown_pages_are_rejected() -> None:
 
 
 def test_failed_renders_are_not_calibrated() -> None:
-    rows = [MeasureRow(interface_id="i", generated_id="p", domain="d", ssim=0.9),
-            MeasureRow(interface_id="i", generated_id="q", domain="d",
-                       status="render_failure: timeout")]
+    rows = [
+        MeasureRow(interface_id="i", generated_id="p", domain="d", ssim=0.9),
+        MeasureRow(
+            interface_id="i", generated_id="q", domain="d", status="render_failure: timeout"
+        ),
+    ]
     data = from_tables(rows, [Rating(generated_id="p", rater_id="r", rating=3)])
     assert data.page_ids.tolist() == ["p"]
 
@@ -212,8 +223,17 @@ def test_cli_calibrates_from_csv_files(tmp_path: Path) -> None:
         writer.writerow(["generated_id", "rater_id", "rating"])
         writer.writerows([r.generated_id, r.rater_id, r.rating] for r in ratings)
     out = tmp_path / "report"
-    code = main(["calibrate", str(tmp_path / "measures.csv"), str(tmp_path / "ratings.csv"),
-                 "--resamples", "0", "--out", str(out)])
+    code = main(
+        [
+            "calibrate",
+            str(tmp_path / "measures.csv"),
+            str(tmp_path / "ratings.csv"),
+            "--resamples",
+            "0",
+            "--out",
+            str(out),
+        ]
+    )
     assert code == 0
     text = (out / "README.md").read_text("utf-8")
     assert "Leave-one-domain-out" in text and "Ablation" in text

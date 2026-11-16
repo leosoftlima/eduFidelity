@@ -134,7 +134,6 @@ class Renderer:
             page.wait_for_timeout(self.poll_ms)
         return False
 
-
     def _route(self, route: Route) -> None:
         url = route.request.url
         if url.startswith(("file:", "data:", "about:", "blob:", *self.allowed_origins)):
