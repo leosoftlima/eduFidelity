@@ -145,6 +145,39 @@ content; Layout Fidelity collapses under a uniform zoom; only the salience-condi
 measures separate losing an Essential element from losing a decorative one. All 9 failed
 checks were errors in the written expectations, and they are reported as such.
 
+## Human evaluation kit (M2)
+
+Everything the people in the study touch, and the code that keeps the protocol honest.
+The guide and the brief template are **drafts for the authors**:
+[salience guide](annotation/salience-guide.md), [task brief template](annotation/brief-template.md).
+
+```bash
+# 1. Salience: one blank sheet per annotator, plus the brief they read first
+uv run edufidelity annotation-sheets reference.json --brief brief.json --annotators ana,bia
+# 2. Strict majority per element; agreement; elements without a majority go to adjudication
+uv run edufidelity resolve-salience reference.json annotation/page/ana.csv annotation/page/bia.csv --out labeled.json
+# 3. Blind rating sheets: every page gets one rater per perspective, never an annotator of its reference
+uv run edufidelity assign-ratings measures.csv raters.csv --annotators annotators.csv --seed 7
+# 4. Back through the key, into the format the calibration reads
+uv run edufidelity collect-ratings rating --out ratings.csv
+uv run edufidelity agreement ratings.csv --level ordinal
+uv run edufidelity calibrate measures.csv ratings.csv
+```
+
+- **Agreement:** Krippendorff's alpha (nominal, ordinal, interval, ratio), from the
+  coincidence matrix, with missing values. It reproduces the published values of
+  Krippendorff (2011) (0.743, 0.815, 0.849, 0.797) and agrees with the `krippendorff`
+  package to 1e-9.
+- **Salience:** a sheet is rejected if any element is blank, unknown or duplicated.
+  Without a strict majority an element waits for adjudication, which must carry a written
+  reason; the labeled reference is written only when every element is resolved, with its
+  digest.
+- **Blind assignment:** raters see opaque codes in a shuffled order; the key stays with
+  the coordinator. Every page gets `--per-group` raters from each group (education,
+  design, computing); annotators never rate pages of references they labeled; load is
+  balanced; the seed makes it reproducible. Pages that failed to render are not sent to
+  raters, and remain in the measurement table as failures.
+
 ## Calibration (M3)
 
 The composite score is the expected rating of a proportional-odds ordinal model, with a
@@ -185,8 +218,8 @@ change the model that scores it (invariant 4).
 |---|---|
 | M0 (done) | Contracts, controlled rendering, collection, matching, Element Preservation, Layout Fidelity, salience-conditioned preservation, SSIM, synthetic examples, CI |
 | M1 (done, except the exporter) | UIClip similarity, perturbation study, bundled fonts and a cross-system check. **Still open:** the design-file exporter to the reference format |
-| M2 | Salience annotation guide, task-brief template, annotation and rating kit, inter-rater agreement |
-| M3 (this version) | Ordinal calibration, leave-one-domain-out validation, ablation, clustered bootstrap, rehearsed on simulated raters |
+| M2 (this version) | Salience annotation guide, task-brief template, annotation and rating kit, inter-rater agreement |
+| M3 (done, on simulated raters) | Ordinal calibration, leave-one-domain-out validation, ablation, clustered bootstrap, rehearsed on simulated raters |
 | M4 | Frozen matching parameters from a verified development sample; supplementary material |
 | M5 | Release with the paper |
 

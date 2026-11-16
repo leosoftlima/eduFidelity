@@ -23,8 +23,8 @@ compute come from small synthetic pages written to test the pipeline.
 | Element Preservation, Layout Fidelity (RQ2) | Implemented |
 | SSIM (RQ2) | Implemented |
 | UIClip (RQ2) | Implemented as an optional extra, with the checkpoint pinned; validated on synthetic pages by a perturbation study ([report](supplementary/perturbations/README.md)) |
-| Preservation by salience category (RQ3) | Implemented (computation only; no annotation protocol yet) |
-| Human evaluation kit and inter-rater agreement (RQ1) | Planned |
+| Preservation by salience category (RQ3) | Implemented; annotation protocol drafted in M2 |
+| Human evaluation kit and inter-rater agreement (RQ1) | Implemented: salience guide and brief template ([drafts](docs/annotation/)), annotation sheets with majority resolution, blind rating assignment, Krippendorff's alpha checked against published values. Not yet used with people |
 | Ordinal calibration, leave-one-domain-out validation, ablation (RQ4) | Implemented and rehearsed on **simulated** raters ([report](supplementary/calibration/README.md)); no human ratings yet |
 | Reference representation from Figma | Planned |
 

@@ -31,6 +31,7 @@ dev = [
     "ruff>=0.6",
     "mypy>=1.11",
     "statsmodels>=0.14",
+    "krippendorff>=0.6",
 ]
 
 [build-system]

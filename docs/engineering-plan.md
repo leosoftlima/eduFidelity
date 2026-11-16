@@ -74,6 +74,17 @@ Planned: `figma.py` (design file to reference), `measures/uiclip.py`, `agreement
 | Fonts of the examples | DejaVu bundled under `examples/fonts/`, loaded from local files | The example table must not depend on the machine; the CI compares it on two systems | System fonts (Arial on Windows, a substitute on Linux) |
 | Perturbation expectations | Which measure should fall under which perturbation is fixed in code before running; misses are reported, not edited away | Otherwise the study can only confirm itself | Writing expectations after looking at the numbers |
 
+### Decisions taken in M2
+
+| Decision | Choice | Why | Alternative rejected |
+|---|---|---|---|
+| Agreement statistic | Own Krippendorff's alpha from the coincidence matrix; checked against the published worked example and against the `krippendorff` package | Handles missing values and ordinal data; two references | Cohen's kappa (two coders, no missing values) |
+| Salience resolution | Strict majority; otherwise adjudication with a written reason; nothing is written until every element is resolved | A tie must be a recorded decision, not an accident of order | First label or random choice |
+| Ordinal order of salience | Decorative < Supporting < Essential, for ordinal alpha | Disagreeing Essential/Decorative is worse than Essential/Supporting | Nominal alpha only |
+| Rater groups | Each page gets the same number of raters from every group | RQ1 compares perspectives; an unbalanced design confounds rater group with page | Random raters per page |
+| Annotators and raters | An annotator never rates pages of a reference they labeled | Knowing the labels biases the rating | No constraint |
+| Blinding | Opaque codes, shuffled order, key kept apart | Raters must not know the model or condition | Showing generated ids |
+
 ### Decisions taken in M3
 
 | Decision | Choice | Why | Alternative rejected |
@@ -115,7 +126,7 @@ Planned: `figma.py` (design file to reference), `measures/uiclip.py`, `agreement
 |---|---|---|
 | **M0** (done) | Contracts, render, collection, matching, EP, LF, salience preservation, SSIM, examples, CI | `edufidelity examples` produces the table; invariants 2, 3, 7, 8 green |
 | **M1** (partly done: all but the exporter) | UIClip and perturbation study; bundled fonts; design-file exporter | Perturbation report; the measure drops under every destructive perturbation, or the report says where it does not; tables match across systems within tolerance |
-| **M2** | Salience guide, brief template, annotation and rating kit, Krippendorff's alpha, blind assignment | Alpha matches published reference values; assignment reproducible by seed |
+| **M2** (done; not yet used with people) | Salience guide, brief template, annotation and rating kit, Krippendorff's alpha, blind assignment | Alpha matches published reference values; assignment reproducible by seed |
 | **M3** (done on simulated raters) | Ordinal ridge calibration, leave-one-domain-out, ablation, clustered bootstrap, on simulated raters | Agrees with reference libraries; invariant 4 green |
 | **M4** | Matching parameters frozen on a verified development sample; supplementary material | Pair precision and recall published; digest recorded before any study data |
 | **M5** | Release with the paper | One command rebuilds every table of the paper from the released data |
