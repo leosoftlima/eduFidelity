@@ -10,7 +10,7 @@ from .matching import match_optimal
 from .models import DomSnapshot, Reference
 
 COMMANDS = ("review-pairs", "dev-sample-synthetic", "tune-matching", "freeze-matching",
-            "figma-reference")
+            "figma-reference", "crop-reference")
 
 
 def register(commands: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
@@ -24,6 +24,13 @@ def register(commands: argparse._SubParsersAction[argparse.ArgumentParser]) -> N
     fig.add_argument("--control-pattern", action="append", default=None,
                      help="regex for control names (repeatable; default: provisional list)")
     fig.add_argument("--out", type=Path, required=True)
+
+    crop = commands.add_parser("crop-reference",
+                               help="keep only the content region of a reference frame")
+    crop.add_argument("reference", type=Path)
+    crop.add_argument("reference_png", type=Path)
+    crop.add_argument("--region", required=True, help="x,y,width,height in frame pixels")
+    crop.add_argument("--out", type=Path, required=True, help="output folder")
 
     rev = commands.add_parser("review-pairs", help="page to verify the proposed pairs by hand")
     rev.add_argument("reference", type=Path, help="reference JSON")
@@ -71,6 +78,20 @@ def run(args: argparse.Namespace) -> int:
         counts = {t: sum(e.type.value == t for e in reference.elements)
                   for t in ("text", "graphic", "control")}
         print(f"{args.out}: {counts}; salience not annotated yet")
+        return 0
+
+    if args.command == "crop-reference":
+        from .region import crop_reference, crop_screenshot
+
+        reference = Reference.model_validate_json(args.reference.read_text("utf-8"))
+        x, y, w, h = (int(v) for v in args.region.split(","))
+        cropped = crop_reference(reference, (x, y, w, h))
+        args.out.mkdir(parents=True, exist_ok=True)
+        (args.out / "reference.json").write_text(cropped.model_dump_json(indent=2), "utf-8")
+        crop_screenshot(args.reference_png, (x, y, w, h), args.out / "reference.png",
+                        reference.frame_width)
+        print(f"{len(cropped.elements)} of {len(reference.elements)} elements kept; "
+              f"render generated pages at width {w}")
         return 0
 
     if args.command == "review-pairs":

@@ -204,6 +204,18 @@ renders such a page by URL, and opens **only** the listed local origins
 (`http://127.0.0.1:<port>` or `http://localhost:<port>`); every other request is still
 blocked. `measure` accepts the URL in place of an HTML file.
 
+## Content region of a reference
+
+A design frame may draw more than the interface under evaluation, such as the learning
+platform around the course content, which a generated page never contains.
+`edufidelity crop-reference reference.json reference.png --region x,y,w,h` keeps only
+the elements whose center lies in the region, re-expresses their boxes relative to it,
+crops the screenshot (also when it was exported at 2x) and records the region in the
+reference (`content_region`), which changes its digest. Generated pages are then rendered
+at the region's width. The region is declared per course before annotation and
+measurement. A first run on real pages is in
+[supplementary/real-pages](../supplementary/real-pages/README.md).
+
 ## Matching development sample (M4)
 
 The matching parameters are provisional until they are tuned on generated pages whose
