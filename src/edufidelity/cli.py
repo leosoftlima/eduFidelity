@@ -86,6 +86,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     from .annotation import cli as kit
 
     kit.register(commands)
+    from . import matching_cli
+
+    matching_cli.register(commands)
 
     single = commands.add_parser("measure", help="measure one generated page")
     single.add_argument("reference", type=Path, help="reference JSON")
@@ -94,12 +97,16 @@ def main(argv: Sequence[str] | None = None) -> int:
     single.add_argument("--workdir", type=Path, default=Path("_work"))
     single.add_argument("--out", type=Path, default=None)
     single.add_argument("--uiclip", action="store_true", help="also compute UIClip (extra)")
+    single.add_argument("--config", type=Path, default=None,
+                        help="frozen matching configuration (freeze-matching)")
 
     args = parser.parse_args(argv)
     if args.command == "examples":
         scorer = UIClipScorer() if args.uiclip else None
         write_table(run_examples(args.pages, args.build, uiclip=scorer), args.out)
         return 0
+    if args.command in matching_cli.COMMANDS:
+        return matching_cli.run(args)
     if args.command in kit.COMMANDS:
         return kit.run(args)
     if args.command == "calibrate":
@@ -113,6 +120,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0
 
     reference = Reference.model_validate_json(args.reference.read_text("utf-8"))
+    from .tuning import load_config
+
     with Renderer() as renderer:
         row, _ = measure(
             renderer,
@@ -121,6 +130,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.generated,
             args.generated.stem,
             args.workdir,
+            config=load_config(args.config) if args.config else None,
             uiclip=UIClipScorer() if args.uiclip else None,
         )
     write_table([row], args.out)

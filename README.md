@@ -19,7 +19,7 @@ compute come from small synthetic pages written to test the pipeline.
 | Data contracts (reference representation, rendered DOM, correspondences, measurement rows) | Implemented as typed models |
 | Controlled rendering of a generated page (fixed browser, viewport, no animations, stable-state wait; failures recorded, never dropped) | Implemented |
 | Element collection from the rendered DOM | Implemented |
-| One-to-one matching between reference and rendered elements | Implemented, **parameters provisional** (not yet tuned on a verified development sample) |
+| One-to-one matching between reference and rendered elements | Implemented, **parameters provisional**. The tools to verify pairs by hand, tune and freeze the parameters exist (M4); the verified sample of real pages does not yet |
 | Element Preservation, Layout Fidelity (RQ2) | Implemented |
 | SSIM (RQ2) | Implemented |
 | UIClip (RQ2) | Implemented as an optional extra, with the checkpoint pinned; validated on synthetic pages by a perturbation study ([report](supplementary/perturbations/README.md)) |

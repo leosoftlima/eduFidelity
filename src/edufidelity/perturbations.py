@@ -93,10 +93,27 @@ _PERTURB_JS = r"""
       if (el.isConnected && el.getBoundingClientRect().top + window.scrollY >= cut) el.remove();
     }
   }
+  if (spec.swap) {
+    // exchange the places of the two largest essential elements that share a parent
+    const items = labeled('essential').sort((a, b) => area(b) - area(a));
+    const pair = items.flatMap((a, i) => items.slice(i + 1)
+      .filter((b) => b.parentNode === a.parentNode).map((b) => [a, b]))[0];
+    if (!pair) throw new Error('no swappable pair');
+    const [a, b] = pair, marker = document.createElement('i');
+    a.replaceWith(marker); b.replaceWith(a); marker.replaceWith(b);
+  }
+  if (spec.reword) {
+    // rewrite every third word of the largest essential text: same element, other words
+    const el = largest('essential');
+    el.textContent = el.textContent.split(/\s+/)
+      .map((w, i) => (i % 3 === 2 ? w.split('').reverse().join('') : w)).join(' ');
+  }
   if (spec.blank) document.body.innerHTML = '';
-  for (const el of document.querySelectorAll('[data-ref-id], [data-salience]')) {
-    el.removeAttribute('data-ref-id');
-    el.removeAttribute('data-salience');
+  if (!spec.keepIds) {
+    for (const el of document.querySelectorAll('[data-ref-id], [data-salience]')) {
+      el.removeAttribute('data-ref-id');
+      el.removeAttribute('data-salience');
+    }
   }
   const base = document.createElement('base');
   base.href = location.href;
