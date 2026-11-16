@@ -1,0 +1,22 @@
+{
+  "config": {
+    "content_weight": 0.5,
+    "spatial_weight": 0.5,
+    "unknown_asset_cost": 0.5,
+    "text_similarity_floor": 0.5,
+    "center_distance_scale": 0.5,
+    "max_cost": 0.5
+  },
+  "config_digest": "2fbea8036f1289b8",
+  "dev_sample_digest": "c91711057939d4ec",
+  "dev_sources": [
+    "manual"
+  ],
+  "n_items": 6,
+  "n_pairs": 148,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1": 1.0,
+  "frozen_at": "2026-11-16T21:24:48+00:00",
+  "note": "Development sample: six pages of one module of an existing course, content area only. Pairs accepted by the verifier without changes, so the defaults are confirmed rather than tuned. These pages must stay out of the study selection, which did not exist when this was frozen."
+}

@@ -138,7 +138,7 @@ Planned: `figma.py` (design file to reference), `measures/uiclip.py`, `agreement
 | **M1** (partly done: all but the exporter) | UIClip and perturbation study; bundled fonts; design-file exporter | Perturbation report; the measure drops under every destructive perturbation, or the report says where it does not; tables match across systems within tolerance |
 | **M2** (done; not yet used with people) | Salience guide, brief template, annotation and rating kit, Krippendorff's alpha, blind assignment | Alpha matches published reference values; assignment reproducible by seed |
 | **M3** (done on simulated raters) | Ordinal ridge calibration, leave-one-domain-out, ablation, clustered bootstrap, on simulated raters | Agrees with reference libraries; invariant 4 green |
-| **M4** (tools done; verified sample of real pages missing) | Matching parameters frozen on a verified development sample; supplementary material | Pair precision and recall published; digest recorded before any study data |
+| **M4** (done: defaults confirmed on six verified real pages) | Matching parameters frozen on a verified development sample; supplementary material | Pair precision and recall published; digest recorded before any study data |
 | **M5** | Release with the paper | One command rebuilds every table of the paper from the released data |
 
 ## 7. Pre-mortem

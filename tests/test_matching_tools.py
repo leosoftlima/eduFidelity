@@ -172,3 +172,11 @@ def test_synthetic_sample_knows_the_true_pairs(tmp_path: Path) -> None:
         found = match_optimal(item.reference.elements, item.snapshot.elements)
         assert pair_scores(found, item.verified).false_positive == 0
     assert (tmp_path / "dev" / "quiz--swap-essential" / "review.html").exists()
+
+
+def test_committed_frozen_configuration_is_intact() -> None:
+    """The frozen file of the repository loads, and its configuration matches its digest."""
+    frozen_path = Path(__file__).resolve().parents[1] / "config" / "matching.frozen.json"
+    frozen = FrozenMatching.model_validate_json(frozen_path.read_text("utf-8"))
+    assert load_config(frozen_path).digest() == frozen.config_digest
+    assert frozen.dev_sources == ["manual"]
