@@ -178,6 +178,24 @@ uv run edufidelity calibrate measures.csv ratings.csv
   balanced; the seed makes it reproducible. Pages that failed to render are not sent to
   raters, and remain in the measurement table as failures.
 
+## Reference representation from Figma
+
+`edufidelity figma-reference` turns one frame of a Figma file (the JSON returned by the
+public REST API, `GET /v1/files/:key`) into a reference representation, with the same
+element rules the DOM collector applies to generated pages: visible text nodes are
+text; image fills and icons drawn with vectors are graphics (one leaf each); containers
+are not elements; boxes are normalized by the frame.
+
+```bash
+uv run edufidelity figma-reference file.json 12:345 --domain biology --out reference.json
+```
+
+**Controls are the open part (Q2).** Figma has no notion of a button or a link, so a
+control is recognized by a naming convention on the node or on its component. The
+default patterns (`button`, `botão`, `btn`, `link`, `input`, `checkbox`, `radio`, or a
+name starting with `control/`) are a proposal; `--control-pattern` replaces them. The
+reference screenshot is exported from Figma separately.
+
 ## Matching development sample (M4)
 
 The matching parameters are provisional until they are tuned on generated pages whose
@@ -251,7 +269,7 @@ change the model that scores it (invariant 4).
 | Milestone | Scope |
 |---|---|
 | M0 (done) | Contracts, controlled rendering, collection, matching, Element Preservation, Layout Fidelity, salience-conditioned preservation, SSIM, synthetic examples, CI |
-| M1 (done, except the exporter) | UIClip similarity, perturbation study, bundled fonts and a cross-system check. **Still open:** the design-file exporter to the reference format |
+| M1 (done; the control rule of the Figma exporter is provisional) | UIClip similarity, perturbation study, bundled fonts and a cross-system check. **Still open:** the design-file exporter to the reference format |
 | M2 (done; not yet used with people) | Salience annotation guide, task-brief template, annotation and rating kit, inter-rater agreement |
 | M3 (done, on simulated raters) | Ordinal calibration, leave-one-domain-out validation, ablation, clustered bootstrap, rehearsed on simulated raters |
 | M4 (tools in this version) | Frozen matching parameters from a verified development sample; supplementary material. **Still needed:** the verified sample of real generated pages |
