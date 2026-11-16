@@ -78,9 +78,16 @@ class Reference(BaseModel):
     frame_width: int
     frame_height: int
     elements: list[RefElement]
+    #: Region of the original frame kept as the interface (x, y, width, height, in frame
+    #: pixels), when the frame also draws things that are not part of it, such as the
+    #: learning platform around the course content. None: the whole frame.
+    content_region: tuple[int, int, int, int] | None = None
 
     def digest(self) -> str:
-        return _digest(self.model_dump(mode="json"))
+        data = self.model_dump(mode="json")
+        if data["content_region"] is None:  # digests of uncropped references are unchanged
+            del data["content_region"]
+        return _digest(data)
 
 
 class DomSnapshot(BaseModel):
