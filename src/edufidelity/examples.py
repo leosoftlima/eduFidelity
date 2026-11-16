@@ -14,6 +14,7 @@ from typing import Any
 
 from playwright.sync_api import sync_playwright
 
+from .measures import UIClipScorer
 from .models import MeasureRow
 from .pipeline import build_reference_from_html, measure
 from .render import Renderer
@@ -34,6 +35,11 @@ _VARIANT_JS = r"""
     el.removeAttribute('data-ref-id');
     el.removeAttribute('data-salience');
   }
+  // The variant is written elsewhere: keep relative resources (the bundled fonts)
+  // resolving against the original page.
+  const base = document.createElement('base');
+  base.href = location.href;
+  document.head.prepend(base);
   return '<!doctype html>\n' + document.documentElement.outerHTML;
 }
 """
@@ -59,7 +65,9 @@ def make_variants(pages_dir: Path, build_dir: Path) -> dict[str, dict[str, Path]
     return written
 
 
-def run_examples(pages_dir: Path, build_dir: Path) -> list[MeasureRow]:
+def run_examples(
+    pages_dir: Path, build_dir: Path, uiclip: UIClipScorer | None = None
+) -> list[MeasureRow]:
     """Build references and variants, measure everything, return the table."""
     manifest: dict[str, Any] = json.loads((pages_dir / "pages.json").read_text("utf-8"))
     variants = make_variants(pages_dir, build_dir)
@@ -82,7 +90,8 @@ def run_examples(pages_dir: Path, build_dir: Path) -> list[MeasureRow]:
             )
             for variant, html in variants[name].items():
                 row, correspondence = measure(
-                    renderer, reference, reference_png, html, f"{name}--{variant}", out
+                    renderer, reference, reference_png, html, f"{name}--{variant}", out,
+                    uiclip=uiclip,
                 )
                 if correspondence is not None:
                     (out / f"{variant}.correspondence.json").write_text(

@@ -148,6 +148,7 @@ class MeasureRow(BaseModel):
     status: str = "ok"
     ssim: float | None = None
     uiclip: float | None = None
+    uiclip_worst_band: float | None = None  # diagnostic, not a predictor
     ep_precision: float | None = None
     ep_recall: float | None = None
     ep_f1: float | None = None
@@ -160,6 +161,7 @@ class MeasureRow(BaseModel):
     n_matched: int = 0
     config_digest: str = ""
     reference_digest: str = ""
+    uiclip_checkpoint: str = ""
 
 
 def _digest(payload: object) -> str:

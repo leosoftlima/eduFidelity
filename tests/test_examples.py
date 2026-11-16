@@ -80,3 +80,24 @@ def test_page_that_never_settles_is_a_recorded_failure(tmp_path: Path) -> None:
         record, raw = renderer.render(page, 800, 600)
     assert record.status == "render_failure" and raw is None
     assert "stabilize" in record.reason
+
+
+#: Tolerance across operating systems. The pages use bundled fonts, so text metrics
+#: should agree; anti-aliasing may still differ by a few pixels. The CSV keeps 4 decimals.
+_TOLERANCE = {"ssim": 0.02, "ep_f1": 1e-4, "layout_fidelity": 0.02,
+              "ped_essential": 1e-4, "ped_supporting": 1e-4, "ped_decorative": 1e-4}
+
+
+def test_table_matches_the_committed_one(table: dict[str, MeasureRow]) -> None:
+    """examples/expected.csv was produced on Windows; CI checks it on Linux too."""
+    import csv
+
+    expected_path = PAGES.parent / "expected.csv"
+    with expected_path.open(encoding="utf-8") as handle:
+        expected = {row["generated_id"]: row for row in csv.DictReader(handle)}
+    assert set(expected) == set(table)
+    for generated_id, row in table.items():
+        for name, tolerance in _TOLERANCE.items():
+            value = getattr(row, name)
+            assert value == pytest.approx(float(expected[generated_id][name]), abs=tolerance), (
+                generated_id, name)

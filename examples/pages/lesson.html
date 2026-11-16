@@ -4,7 +4,11 @@
 <meta charset="utf-8">
 <title>Lesson 2 - What can be composted</title>
 <style>
-  body { margin: 0; font-family: Arial, Helvetica, sans-serif; color: #1f2933; background: #ffffff; }
+  @font-face { font-family: "EduSans"; src: url("../fonts/DejaVuSans.ttf"); font-weight: 400; }
+  @font-face { font-family: "EduSans"; src: url("../fonts/DejaVuSans-Bold.ttf"); font-weight: 700; }
+  @font-face { font-family: "EduSerif"; src: url("../fonts/DejaVuSerif.ttf"); font-weight: 400; }
+  @font-face { font-family: "EduSerif"; src: url("../fonts/DejaVuSerif-Bold.ttf"); font-weight: 700; }
+  body { margin: 0; font-family: "EduSans", sans-serif; color: #1f2933; background: #ffffff; }
   header { display: flex; align-items: center; gap: 16px; padding: 20px 64px; border-bottom: 1px solid #d9e2ec; }
   header .course { font-size: 18px; font-weight: bold; }
   header .progress { margin-left: auto; font-size: 14px; color: #52606d; }
@@ -16,6 +20,7 @@
   nav { display: flex; gap: 24px; align-items: center; padding: 24px 64px 48px; }
   nav a { font-size: 16px; color: #2b6cb0; }
   nav button { font-size: 16px; padding: 12px 28px; background: #2f855a; color: #ffffff; border: 0; border-radius: 6px; }
+  button, input, select, textarea { font-family: inherit; }
 </style>
 </head>
 <body>

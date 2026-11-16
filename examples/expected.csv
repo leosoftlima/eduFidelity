@@ -1,0 +1,13 @@
+interface_id,generated_id,status,ssim,uiclip,uiclip_worst_band,ep_precision,ep_recall,ep_f1,layout_fidelity,ped_essential,ped_supporting,ped_decorative,n_reference,n_generated,n_matched,config_digest,reference_digest,uiclip_checkpoint
+lesson,lesson--faithful,ok,1.0000,,,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,10,10,10,2fbea8036f1289b8,b08fe0fbdc556e07,
+lesson,lesson--missing_essential,ok,0.9904,,,1.0000,0.9000,0.9474,0.9140,0.7500,1.0000,1.0000,10,9,9,2fbea8036f1289b8,b08fe0fbdc556e07,
+lesson,lesson--shifted,ok,0.9753,,,1.0000,1.0000,1.0000,0.9015,1.0000,1.0000,1.0000,10,10,10,2fbea8036f1289b8,b08fe0fbdc556e07,
+lesson,lesson--no_decorative,ok,0.8172,,,1.0000,0.8000,0.8889,0.2224,1.0000,1.0000,0.0000,10,8,8,2fbea8036f1289b8,b08fe0fbdc556e07,
+quiz,quiz--faithful,ok,1.0000,,,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,14,14,14,2fbea8036f1289b8,bc15648e0dac48dd,
+quiz,quiz--missing_essential,ok,0.9923,,,1.0000,0.9286,0.9630,0.9231,0.8750,1.0000,1.0000,14,13,13,2fbea8036f1289b8,bc15648e0dac48dd,
+quiz,quiz--shifted,ok,0.9844,,,1.0000,1.0000,1.0000,0.9286,1.0000,1.0000,1.0000,14,14,14,2fbea8036f1289b8,bc15648e0dac48dd,
+quiz,quiz--no_decorative,ok,0.8797,,,1.0000,0.8571,0.9231,0.1508,1.0000,1.0000,0.0000,14,12,12,2fbea8036f1289b8,bc15648e0dac48dd,
+overview,overview--faithful,ok,1.0000,,,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,1.0000,14,14,14,2fbea8036f1289b8,aa6841f25168d9cf,
+overview,overview--missing_essential,ok,0.9544,,,1.0000,0.9286,0.9630,0.8951,0.8000,1.0000,1.0000,14,13,13,2fbea8036f1289b8,aa6841f25168d9cf,
+overview,overview--shifted,ok,0.9818,,,1.0000,1.0000,1.0000,0.9317,1.0000,1.0000,1.0000,14,14,14,2fbea8036f1289b8,aa6841f25168d9cf,
+overview,overview--no_decorative,ok,0.8381,,,1.0000,0.8571,0.9231,0.0622,1.0000,1.0000,0.0000,14,12,12,2fbea8036f1289b8,aa6841f25168d9cf,
