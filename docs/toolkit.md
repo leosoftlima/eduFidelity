@@ -196,6 +196,14 @@ default patterns (`button`, `botão`, `btn`, `link`, `input`, `checkbox`, `radio
 name starting with `control/`) are a proposal; `--control-pattern` replaces them. The
 reference screenshot is exported from Figma separately.
 
+## Pages served by a local server
+
+Generated interfaces that are single-page applications need a server: the page is
+assembled by JavaScript from a route or a query string. `Renderer(allowed_origins=...)`
+renders such a page by URL, and opens **only** the listed local origins
+(`http://127.0.0.1:<port>` or `http://localhost:<port>`); every other request is still
+blocked. `measure` accepts the URL in place of an HTML file.
+
 ## Matching development sample (M4)
 
 The matching parameters are provisional until they are tuned on generated pages whose
