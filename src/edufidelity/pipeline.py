@@ -119,6 +119,9 @@ def measure(
         return row, None
 
     snapshot = to_snapshot(raw, reference.frame_width, reference.frame_height)
+    # kept so that the pairs can be verified later (development sample, M4)
+    (workdir / f"{generated_id}.snapshot.json").write_text(
+        snapshot.model_dump_json(indent=2), encoding="utf-8")
     correspondence = match_optimal(reference.elements, snapshot.elements, config)
     scores = element_preservation(
         correspondence, len(reference.elements), len(snapshot.elements)

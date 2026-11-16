@@ -74,6 +74,16 @@ Planned: `figma.py` (design file to reference), `measures/uiclip.py`, `agreement
 | Fonts of the examples | DejaVu bundled under `examples/fonts/`, loaded from local files | The example table must not depend on the machine; the CI compares it on two systems | System fonts (Arial on Windows, a substitute on Linux) |
 | Perturbation expectations | Which measure should fall under which perturbation is fixed in code before running; misses are reported, not edited away | Otherwise the study can only confirm itself | Writing expectations after looking at the numbers |
 
+### Decisions taken in M4 (tools)
+
+| Decision | Choice | Why | Alternative rejected |
+|---|---|---|---|
+| Verification interface | A static HTML page per generated page, images embedded, no network; the person picks, for each reference element, the same element in the generated page or "no pair" | Works offline, needs no server, leaves a JSON file per page | A spreadsheet of ids without the screenshots |
+| Metric | Pair precision, recall and F1, pooled over pages | The quantity the plan says to publish | Element-level agreement only |
+| Selection | Best F1 on a fixed grid; ties go to the provisional defaults | Deterministic and conservative when the sample cannot discriminate | Random or last-best tie-breaking |
+| Freezing | Configuration digest, development-sample digest and timestamp in one file, verified on load; refused when the sample shares a reference with the study | "Digest recorded before any study data" | Copying numbers into the code by hand |
+| Snapshot of each measurement | `measure` writes the collected elements next to the screenshot | The pairs of any measured page can be verified later | Re-rendering to verify |
+
 ### Decisions taken in M2
 
 | Decision | Choice | Why | Alternative rejected |
@@ -128,7 +138,7 @@ Planned: `figma.py` (design file to reference), `measures/uiclip.py`, `agreement
 | **M1** (partly done: all but the exporter) | UIClip and perturbation study; bundled fonts; design-file exporter | Perturbation report; the measure drops under every destructive perturbation, or the report says where it does not; tables match across systems within tolerance |
 | **M2** (done; not yet used with people) | Salience guide, brief template, annotation and rating kit, Krippendorff's alpha, blind assignment | Alpha matches published reference values; assignment reproducible by seed |
 | **M3** (done on simulated raters) | Ordinal ridge calibration, leave-one-domain-out, ablation, clustered bootstrap, on simulated raters | Agrees with reference libraries; invariant 4 green |
-| **M4** | Matching parameters frozen on a verified development sample; supplementary material | Pair precision and recall published; digest recorded before any study data |
+| **M4** (tools done; verified sample of real pages missing) | Matching parameters frozen on a verified development sample; supplementary material | Pair precision and recall published; digest recorded before any study data |
 | **M5** | Release with the paper | One command rebuilds every table of the paper from the released data |
 
 ## 7. Pre-mortem

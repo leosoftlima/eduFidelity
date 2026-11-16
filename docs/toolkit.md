@@ -178,6 +178,40 @@ uv run edufidelity calibrate measures.csv ratings.csv
   balanced; the seed makes it reproducible. Pages that failed to render are not sent to
   raters, and remain in the measurement table as failures.
 
+## Matching development sample (M4)
+
+The matching parameters are provisional until they are tuned on generated pages whose
+pairs a person has checked, and then frozen. The tools for that are here; the sample of
+real pages is not.
+
+```bash
+# 1. Measure a generated page; the elements found are saved next to the screenshot
+uv run edufidelity measure reference.json reference.png page.html --workdir work
+# 2. A self-contained review page (images embedded, no network) with the proposed pairs
+uv run edufidelity review-pairs reference.json reference.png work/page.snapshot.json work/page.png --out dev/page
+#    open dev/page/review.html, correct the pairs, save verified.json into dev/page
+# 3. Evaluate the grid of parameters on every verified page
+uv run edufidelity tune-matching dev
+# 4. Freeze the best configuration; refused if the sample shares a reference with the study
+uv run edufidelity freeze-matching dev --study-interfaces study.txt --out matching.frozen.json
+# 5. Every study measurement uses it, and carries its digest in the row
+uv run edufidelity measure reference.json reference.png page.html --config matching.frozen.json
+```
+
+Metrics are pair precision, recall and F1, pooled over pages, against the verified
+pairs; the greedy IoU baseline is reported next to them. Ties are broken toward the
+provisional defaults. The frozen file holds the configuration, its digest and the digest
+of the development sample, and is checked against its own digest when loaded.
+
+**A synthetic rehearsal** (`edufidelity dev-sample-synthetic`) derives the true pairs of
+the perturbed synthetic pages from their authoring ids, including two defects aimed at the
+matcher (two paragraphs swapped, a paragraph reworded). The result is in
+[supplementary/matching](../supplementary/matching/README.md): the optimal matcher finds
+every pair with the defaults, the greedy baseline misses 16%, and 39 of the 75
+configurations tie. **The synthetic sample is too easy to choose parameters**, which is
+exactly why M4 needs real pages verified by a person. An example of the review page is
+`supplementary/matching/review-example.html` (download it and open it in a browser).
+
 ## Calibration (M3)
 
 The composite score is the expected rating of a proportional-odds ordinal model, with a
@@ -218,9 +252,9 @@ change the model that scores it (invariant 4).
 |---|---|
 | M0 (done) | Contracts, controlled rendering, collection, matching, Element Preservation, Layout Fidelity, salience-conditioned preservation, SSIM, synthetic examples, CI |
 | M1 (done, except the exporter) | UIClip similarity, perturbation study, bundled fonts and a cross-system check. **Still open:** the design-file exporter to the reference format |
-| M2 (this version) | Salience annotation guide, task-brief template, annotation and rating kit, inter-rater agreement |
+| M2 (done; not yet used with people) | Salience annotation guide, task-brief template, annotation and rating kit, inter-rater agreement |
 | M3 (done, on simulated raters) | Ordinal calibration, leave-one-domain-out validation, ablation, clustered bootstrap, rehearsed on simulated raters |
-| M4 | Frozen matching parameters from a verified development sample; supplementary material |
+| M4 (tools in this version) | Frozen matching parameters from a verified development sample; supplementary material. **Still needed:** the verified sample of real generated pages |
 | M5 | Release with the paper |
 
 Details in [docs/engineering-plan.md](engineering-plan.md).
