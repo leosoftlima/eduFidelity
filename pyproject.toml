@@ -14,6 +14,13 @@ dependencies = [
     "playwright>=1.48",
 ]
 
+[project.optional-dependencies]
+# UIClip similarity: a 600 MB checkpoint, downloaded on first use.
+uiclip = [
+    "torch>=2.2",
+    "transformers>=4.40",
+]
+
 [project.scripts]
 edufidelity = "edufidelity.cli:main"
 
@@ -34,7 +41,10 @@ packages = ["src/edufidelity"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-markers = ["browser: needs a Playwright Chromium install"]
+markers = [
+    "browser: needs a Playwright Chromium install",
+    "uiclip: needs the uiclip extra and downloads the checkpoint",
+]
 
 [tool.ruff]
 line-length = 100
@@ -49,5 +59,5 @@ python_version = "3.11"
 plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
-module = ["skimage.*", "scipy.*", "rapidfuzz.*"]
+module = ["skimage.*", "scipy.*", "rapidfuzz.*", "torch.*", "transformers.*"]
 ignore_missing_imports = true

@@ -5,7 +5,13 @@ from __future__ import annotations
 from pathlib import Path
 
 from .matching import match_optimal
-from .measures import element_preservation, layout_fidelity, pedagogical_preservation, ssim_score
+from .measures import (
+    UIClipScorer,
+    element_preservation,
+    layout_fidelity,
+    pedagogical_preservation,
+    ssim_score,
+)
 from .models import (
     BBox,
     Correspondence,
@@ -89,8 +95,12 @@ def measure(
     generated_id: str,
     workdir: Path,
     config: MatchConfig | None = None,
+    uiclip: UIClipScorer | None = None,
 ) -> tuple[MeasureRow, Correspondence | None]:
-    """Render a generated page and compute every M0 measure against its reference."""
+    """Render a generated page and compute every measure against its reference.
+
+    UIClip is computed only when a scorer is given (it needs the optional extra).
+    """
     config = config or MatchConfig()
     row = MeasureRow(
         interface_id=reference.interface_id,
@@ -122,4 +132,9 @@ def measure(
     row.ped_supporting = ped[Salience.SUPPORTING]
     row.ped_decorative = ped[Salience.DECORATIVE]
     row.ssim = ssim_score(reference_png, screenshot)
+    if uiclip is not None:
+        comparison = uiclip.compare(reference_png, screenshot)
+        row.uiclip = comparison.similarity
+        row.uiclip_worst_band = comparison.worst_band
+        row.uiclip_checkpoint = uiclip.checkpoint
     return row, correspondence

@@ -4,7 +4,11 @@
 <meta charset="utf-8">
 <title>Module 1 overview</title>
 <style>
-  body { margin: 0; font-family: Arial, Helvetica, sans-serif; color: #1f2933; background: #ffffff; }
+  @font-face { font-family: "EduSans"; src: url("../fonts/DejaVuSans.ttf"); font-weight: 400; }
+  @font-face { font-family: "EduSans"; src: url("../fonts/DejaVuSans-Bold.ttf"); font-weight: 700; }
+  @font-face { font-family: "EduSerif"; src: url("../fonts/DejaVuSerif.ttf"); font-weight: 400; }
+  @font-face { font-family: "EduSerif"; src: url("../fonts/DejaVuSerif-Bold.ttf"); font-weight: 700; }
+  body { margin: 0; font-family: "EduSans", sans-serif; color: #1f2933; background: #ffffff; }
   header { display: flex; align-items: center; gap: 16px; padding: 20px 64px; border-bottom: 1px solid #d9e2ec; }
   header .course { font-size: 18px; font-weight: bold; }
   main { padding: 40px 64px; max-width: 860px; }
@@ -16,6 +20,7 @@
   li a { font-size: 18px; color: #2b6cb0; }
   li .state { margin-left: auto; font-size: 14px; color: #52606d; }
   .resources { font-size: 16px; width: 420px; }
+  button, input, select, textarea { font-family: inherit; }
 </style>
 </head>
 <body>

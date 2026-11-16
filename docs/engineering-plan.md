@@ -64,6 +64,16 @@ Planned: `figma.py` (design file to reference), `measures/uiclip.py`, `agreement
 | Render readiness | Fonts, images and two equal layout signatures | A fixed sleep is either slow or wrong | Virtual time budget |
 | Network | Closed during render | A render must not depend on a remote asset | Open network |
 
+### Decisions taken in M1
+
+| Decision | Choice | Why | Alternative rejected |
+|---|---|---|---|
+| UIClip checkpoint | Final checkpoint of the UIClip paper (web pairs + human pairs), pinned by revision; original CLIP processor, also pinned | It is the one the authors validated against designers' rankings | The unpinned latest revision |
+| UIClip on long pages | Mean of 224 px square windows slid along the long side, as in the authors' reference code; worst band kept as a diagnostic | Same procedure the checkpoint was validated with; nothing is cropped away | Squashing the page into one square; the processor's center crop |
+| UIClip dependency | Optional extra (`uiclip`); the CI runs the logic with a fake embedder | torch and a 600 MB checkpoint should not be required for the other five measures | A hard dependency |
+| Fonts of the examples | DejaVu bundled under `examples/fonts/`, loaded from local files | The example table must not depend on the machine; the CI compares it on two systems | System fonts (Arial on Windows, a substitute on Linux) |
+| Perturbation expectations | Which measure should fall under which perturbation is fixed in code before running; misses are reported, not edited away | Otherwise the study can only confirm itself | Writing expectations after looking at the numbers |
+
 ## 5. Open questions
 
 - **Q1. Layout Fidelity is brittle to reflow.** In the synthetic examples, removing a
@@ -74,7 +84,10 @@ Planned: `figma.py` (design file to reference), `measures/uiclip.py`, `agreement
 - **Q2. Roles in the reference.** Design tools do not carry control semantics. The
   `control` type on the reference side must come from a naming convention or manual
   annotation, and the protocol must say which.
-- **Q3. UIClip on long pages.** The encoder sees 224 px. A full-page screenshot loses
+- **Q3. UIClip on long pages.** *Partly answered in M1: the checkpoint is applied with
+  its authors' sliding-window procedure, so no part of the page is cropped away. Still
+  open: whether a mean over many windows dilutes a defect confined to one band of a long
+  page; the synthetic pages are too short to tell.* Original note: the encoder sees 224 px. A full-page screenshot loses
   most detail. Plan: whole page as the primary measure, viewport-sized bands as a
   diagnostic, and a perturbation study to decide whether the adaptation holds.
 - **Q4. Replaced text.** Text rewritten beyond the similarity floor counts as one
@@ -89,7 +102,7 @@ Planned: `figma.py` (design file to reference), `measures/uiclip.py`, `agreement
 | Milestone | Scope | Acceptance |
 |---|---|---|
 | **M0** (done) | Contracts, render, collection, matching, EP, LF, salience preservation, SSIM, examples, CI | `edufidelity examples` produces the table; invariants 2, 3, 7, 8 green |
-| **M1** | UIClip and perturbation study; bundled fonts; design-file exporter | Perturbation report; the measure drops under every destructive perturbation, or the report says where it does not; tables match across systems within tolerance |
+| **M1** (partly done: all but the exporter) | UIClip and perturbation study; bundled fonts; design-file exporter | Perturbation report; the measure drops under every destructive perturbation, or the report says where it does not; tables match across systems within tolerance |
 | **M2** | Salience guide, brief template, annotation and rating kit, Krippendorff's alpha, blind assignment | Alpha matches published reference values; assignment reproducible by seed |
 | **M3** | Ordinal ridge calibration, leave-one-domain-out, ablation, clustered bootstrap, on simulated raters | Agrees with reference libraries; invariant 4 green |
 | **M4** | Matching parameters frozen on a verified development sample; supplementary material | Pair precision and recall published; digest recorded before any study data |

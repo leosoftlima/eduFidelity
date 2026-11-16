@@ -9,6 +9,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from .examples import run_examples
+from .measures import UIClipScorer
 from .models import MeasureRow, Reference
 from .pipeline import measure
 from .render import Renderer
@@ -38,6 +39,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     examples.add_argument("--pages", type=Path, default=Path("examples/pages"))
     examples.add_argument("--build", type=Path, default=Path("examples/_build"))
     examples.add_argument("--out", type=Path, default=None, help="CSV file (default: stdout)")
+    examples.add_argument("--uiclip", action="store_true", help="also compute UIClip (extra)")
+
+    study = commands.add_parser("perturbations", help="run the perturbation study")
+    study.add_argument("--pages", type=Path, default=Path("examples/pages"))
+    study.add_argument("--build", type=Path, default=Path("examples/_build/perturbations"))
+    study.add_argument("--out", type=Path, default=Path("supplementary/perturbations"))
+    study.add_argument("--no-uiclip", action="store_true", help="skip UIClip (no extra needed)")
 
     single = commands.add_parser("measure", help="measure one generated page")
     single.add_argument("reference", type=Path, help="reference JSON")
@@ -45,10 +53,19 @@ def main(argv: Sequence[str] | None = None) -> int:
     single.add_argument("generated", type=Path, help="generated HTML file")
     single.add_argument("--workdir", type=Path, default=Path("_work"))
     single.add_argument("--out", type=Path, default=None)
+    single.add_argument("--uiclip", action="store_true", help="also compute UIClip (extra)")
 
     args = parser.parse_args(argv)
     if args.command == "examples":
-        write_table(run_examples(args.pages, args.build), args.out)
+        scorer = UIClipScorer() if args.uiclip else None
+        write_table(run_examples(args.pages, args.build, uiclip=scorer), args.out)
+        return 0
+    if args.command == "perturbations":
+        from .perturbations import run_perturbations, write_report
+
+        scorer = None if args.no_uiclip else UIClipScorer()
+        rows = run_perturbations(args.pages, args.build, uiclip=scorer)
+        print(write_report(rows, args.out))
         return 0
 
     reference = Reference.model_validate_json(args.reference.read_text("utf-8"))
@@ -60,6 +77,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.generated,
             args.generated.stem,
             args.workdir,
+            uiclip=UIClipScorer() if args.uiclip else None,
         )
     write_table([row], args.out)
     return 0 if row.status == "ok" else 1

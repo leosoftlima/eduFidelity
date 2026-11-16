@@ -22,7 +22,7 @@ compute come from small synthetic pages written to test the pipeline.
 | One-to-one matching between reference and rendered elements | Implemented, **parameters provisional** (not yet tuned on a verified development sample) |
 | Element Preservation, Layout Fidelity (RQ2) | Implemented |
 | SSIM (RQ2) | Implemented |
-| UIClip (RQ2) | Planned |
+| UIClip (RQ2) | Implemented as an optional extra, with the checkpoint pinned; validated on synthetic pages by a perturbation study ([report](supplementary/perturbations/README.md)) |
 | Preservation by salience category (RQ3) | Implemented (computation only; no annotation protocol yet) |
 | Human evaluation kit and inter-rater agreement (RQ1) | Planned |
 | Ordinal calibration, leave-one-domain-out validation, ablation (RQ4) | Planned |
@@ -36,6 +36,9 @@ uv run playwright install chromium
 uv run edufidelity examples
 uv run pytest
 ```
+
+UIClip and the perturbation study need the optional extra (`uv sync --extra uiclip`); see
+[docs/toolkit.md](docs/toolkit.md).
 
 Details, the example table, design decisions and open methodological questions:
 [docs/toolkit.md](docs/toolkit.md) and [docs/engineering-plan.md](docs/engineering-plan.md).
