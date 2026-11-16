@@ -70,10 +70,12 @@ def test_unlabeled_reference_is_rejected(tmp_path: Path) -> None:
 
 def test_page_that_never_settles_is_a_recorded_failure(tmp_path: Path) -> None:
     page = tmp_path / "restless.html"
+    # The height grows on every tick, so no two layout signatures can be equal. A random
+    # height could repeat by chance between two polls and let the page "settle".
     page.write_text(
         "<!doctype html><body><div id='d'>x</div><script>"
-        "setInterval(() => { const d = document.getElementById('d');"
-        " d.style.height = (Math.random() * 500) + 'px'; }, 20);</script></body>",
+        "let h = 0; setInterval(() => { h += 37;"
+        " document.getElementById('d').style.height = h + 'px'; }, 20);</script></body>",
         encoding="utf-8",
     )
     with Renderer(timeout_ms=4000) as renderer:
