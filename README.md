@@ -25,7 +25,7 @@ compute come from small synthetic pages written to test the pipeline.
 | UIClip (RQ2) | Implemented as an optional extra, with the checkpoint pinned; validated on synthetic pages by a perturbation study ([report](supplementary/perturbations/README.md)) |
 | Preservation by salience category (RQ3) | Implemented (computation only; no annotation protocol yet) |
 | Human evaluation kit and inter-rater agreement (RQ1) | Planned |
-| Ordinal calibration, leave-one-domain-out validation, ablation (RQ4) | Planned |
+| Ordinal calibration, leave-one-domain-out validation, ablation (RQ4) | Implemented and rehearsed on **simulated** raters ([report](supplementary/calibration/README.md)); no human ratings yet |
 | Reference representation from Figma | Planned |
 
 To run the synthetic examples (Python 3.11+ and [uv](https://docs.astral.sh/uv/)):

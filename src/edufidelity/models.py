@@ -145,6 +145,7 @@ class MeasureRow(BaseModel):
 
     interface_id: str
     generated_id: str
+    domain: str = ""
     status: str = "ok"
     ssim: float | None = None
     uiclip: float | None = None

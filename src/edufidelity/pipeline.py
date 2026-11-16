@@ -105,6 +105,7 @@ def measure(
     row = MeasureRow(
         interface_id=reference.interface_id,
         generated_id=generated_id,
+        domain=reference.domain,
         n_reference=len(reference.elements),
         config_digest=config.digest(),
         reference_digest=reference.digest(),

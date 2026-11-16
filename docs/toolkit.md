@@ -34,7 +34,8 @@ exists, from a task brief that states what the learner must do on that page:
 
 The composite score is **not** a hand-weighted sum. It will be calibrated against
 multidisciplinary human judgments with an ordinal model and validated on educational
-domains left out of calibration (planned, M3).
+domains left out of calibration (M3: implemented and rehearsed on simulated raters, see
+[Calibration](#calibration-m3)).
 
 ## How it works today
 
@@ -144,6 +145,33 @@ content; Layout Fidelity collapses under a uniform zoom; only the salience-condi
 measures separate losing an Essential element from losing a decorative one. All 9 failed
 checks were errors in the written expectations, and they are reported as such.
 
+## Calibration (M3)
+
+The composite score is the expected rating of a proportional-odds ordinal model, with a
+ridge penalty, rescaled to 0..1. It is learned from human ratings, never weighted by
+hand. Until the study's ratings exist, the procedure runs on **simulated raters** only.
+
+```bash
+uv run edufidelity calibrate --simulated                 # rehearsal, two scenarios
+uv run edufidelity calibrate measures.csv ratings.csv    # ratings: generated_id,rater_id,rating
+```
+
+The procedure: hold out one educational domain; on the others, choose the ridge strength
+by cross-validation with folds made of whole reference interfaces; fit; score the
+held-out pages and compare with their mean human rating (Spearman and mean absolute
+error). The ablation repeats it without the two salience-conditioned predictors. The
+bootstrap resamples reference interfaces inside each domain and reruns everything.
+
+The rehearsal has two simulated scenarios: one where raters care about losing Essential
+and Supporting elements, and a null one where they do not. The procedure should find a
+gain from salience in the first and report none in the second; the
+[report](../supplementary/calibration/README.md) shows whether it does. **These are
+simulations, not results.**
+
+Checks: the unpenalized fit agrees with `statsmodels` `OrderedModel`; a very strong
+penalty recovers the closed-form marginal thresholds; altering a held-out domain does not
+change the model that scores it (invariant 4).
+
 ## What is not here
 
 - **The generation pipeline.** The interfaces in the study are produced by a proprietary
@@ -156,9 +184,9 @@ checks were errors in the written expectations, and they are reported as such.
 | Milestone | Scope |
 |---|---|
 | M0 (done) | Contracts, controlled rendering, collection, matching, Element Preservation, Layout Fidelity, salience-conditioned preservation, SSIM, synthetic examples, CI |
-| M1 (this version) | UIClip similarity, perturbation study, bundled fonts and a cross-system check. **Still open:** the design-file exporter to the reference format |
+| M1 (done, except the exporter) | UIClip similarity, perturbation study, bundled fonts and a cross-system check. **Still open:** the design-file exporter to the reference format |
 | M2 | Salience annotation guide, task-brief template, annotation and rating kit, inter-rater agreement |
-| M3 | Ordinal calibration, leave-one-domain-out validation, ablation, clustered bootstrap |
+| M3 (this version) | Ordinal calibration, leave-one-domain-out validation, ablation, clustered bootstrap, rehearsed on simulated raters |
 | M4 | Frozen matching parameters from a verified development sample; supplementary material |
 | M5 | Release with the paper |
 
