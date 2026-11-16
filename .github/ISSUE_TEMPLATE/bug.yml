@@ -1,0 +1,24 @@
+name: Bug
+description: Something does not work as documented
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what was expected
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Command and input to reproduce it
+      description: Use the synthetic examples when possible. Never attach pages or screenshots of the study corpus.
+      render: shell
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Operating system, Python version, toolkit version or commit
+    validations:
+      required: true

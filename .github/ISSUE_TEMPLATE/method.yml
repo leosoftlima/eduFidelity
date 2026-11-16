@@ -1,0 +1,20 @@
+name: Methodological question
+description: A decision for the authors (an open question of the engineering plan, a protocol detail)
+labels: [method]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: The question
+    validations:
+      required: true
+  - type: textarea
+    id: options
+    attributes:
+      label: Options, with what each one changes
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence so far (synthetic examples, perturbation study, aggregate numbers only)

@@ -40,6 +40,8 @@ uv run pytest
 UIClip and the perturbation study need the optional extra (`uv sync --extra uiclip`); see
 [docs/toolkit.md](docs/toolkit.md).
 
+How changes reach the trunk (branches, reviews, quality gates, methodological changes, data rules): [CONTRIBUTING.md](CONTRIBUTING.md). One command runs every gate locally: `uv run python scripts/check.py`.
+
 Details, the example table, design decisions and open methodological questions:
 [docs/toolkit.md](docs/toolkit.md) and [docs/engineering-plan.md](docs/engineering-plan.md).
 

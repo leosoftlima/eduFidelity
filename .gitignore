@@ -8,3 +8,6 @@ __pycache__/
 dist/
 examples/_build/
 _work/
+.coverage
+coverage.xml
+htmlcov/
