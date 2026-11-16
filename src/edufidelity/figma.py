@@ -31,8 +31,16 @@ from .models import BBox, ElementType, RefElement, Reference
 
 #: Provisional naming convention for controls (Q2). Case-insensitive, on node or
 #: component names.
-DEFAULT_CONTROL_PATTERNS = (r"\bbutton\b", r"\bbot[aã]o\b", r"\bbtn\b", r"\blink\b",
-                            r"\binput\b", r"\bcheckbox\b", r"\bradio\b", r"^control/")
+DEFAULT_CONTROL_PATTERNS = (
+    r"\bbutton\b",
+    r"\bbot[aã]o\b",
+    r"\bbtn\b",
+    r"\blink\b",
+    r"\binput\b",
+    r"\bcheckbox\b",
+    r"\bradio\b",
+    r"^control/",
+)
 # Lines and ellipses are left out: in HTML they are usually borders and rounded boxes,
 # which the DOM collector does not report either.
 _VECTOR_TYPES = {"VECTOR", "BOOLEAN_OPERATION", "STAR", "REGULAR_POLYGON"}
@@ -81,8 +89,10 @@ def _only_vectors(node: Mapping[str, Any]) -> bool:
     children = [c for c in node.get("children", []) if _visible(c)]
     if not children:
         return False
-    return all(c.get("type") in _VECTOR_TYPES or
-               (c.get("type") in {"GROUP", "FRAME"} and _only_vectors(c)) for c in children)
+    return all(
+        c.get("type") in _VECTOR_TYPES or (c.get("type") in {"GROUP", "FRAME"} and _only_vectors(c))
+        for c in children
+    )
 
 
 def _texts(node: Mapping[str, Any]) -> Iterator[str]:
@@ -108,8 +118,11 @@ def frame_to_reference(
     course: str = "",
     rules: ExportRules | None = None,
 ) -> Reference:
-    rules = rules or ExportRules(component_names={
-        k: v.get("name", "") for k, v in (document.get("components") or {}).items()})
+    rules = rules or ExportRules(
+        component_names={
+            k: v.get("name", "") for k, v in (document.get("components") or {}).items()
+        }
+    )
     root = document.get("document", document)
     frame = find_node(root, frame_id)
     box = frame.get("absoluteBoundingBox")
@@ -123,9 +136,15 @@ def frame_to_reference(
         w, h = b.get("width", 0) or 0, b.get("height", 0) or 0
         if w <= 0 or h <= 0:
             return
-        elements.append(RefElement(
-            id=str(node["id"]), type=kind, text=" ".join(text.split()), asset=asset,
-            bbox=BBox(x=(b["x"] - fx) / fw, y=(b["y"] - fy) / fh, w=w / fw, h=h / fh)))
+        elements.append(
+            RefElement(
+                id=str(node["id"]),
+                type=kind,
+                text=" ".join(text.split()),
+                asset=asset,
+                bbox=BBox(x=(b["x"] - fx) / fw, y=(b["y"] - fy) / fh, w=w / fw, h=h / fh),
+            )
+        )
 
     def walk(node: Mapping[str, Any]) -> None:
         if not _visible(node):
@@ -151,6 +170,11 @@ def frame_to_reference(
         walk(child)
     if not elements:
         raise FigmaExportError(f"frame {frame_id!r} has no visible elements")
-    return Reference(interface_id=interface_id or str(frame.get("name", frame_id)),
-                     domain=domain, course=course, frame_width=round(fw),
-                     frame_height=round(fh), elements=elements)
+    return Reference(
+        interface_id=interface_id or str(frame.get("name", frame_id)),
+        domain=domain,
+        course=course,
+        frame_width=round(fw),
+        frame_height=round(fh),
+        elements=elements,
+    )

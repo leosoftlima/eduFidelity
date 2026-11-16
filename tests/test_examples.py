@@ -86,8 +86,14 @@ def test_page_that_never_settles_is_a_recorded_failure(tmp_path: Path) -> None:
 
 #: Tolerance across operating systems. The pages use bundled fonts, so text metrics
 #: should agree; anti-aliasing may still differ by a few pixels. The CSV keeps 4 decimals.
-_TOLERANCE = {"ssim": 0.02, "ep_f1": 1e-4, "layout_fidelity": 0.02,
-              "ped_essential": 1e-4, "ped_supporting": 1e-4, "ped_decorative": 1e-4}
+_TOLERANCE = {
+    "ssim": 0.02,
+    "ep_f1": 1e-4,
+    "layout_fidelity": 0.02,
+    "ped_essential": 1e-4,
+    "ped_supporting": 1e-4,
+    "ped_decorative": 1e-4,
+}
 
 
 def test_table_matches_the_committed_one(table: dict[str, MeasureRow]) -> None:
@@ -102,7 +108,9 @@ def test_table_matches_the_committed_one(table: dict[str, MeasureRow]) -> None:
         for name, tolerance in _TOLERANCE.items():
             value = getattr(row, name)
             assert value == pytest.approx(float(expected[generated_id][name]), abs=tolerance), (
-                generated_id, name)
+                generated_id,
+                name,
+            )
 
 
 def test_page_served_by_a_local_server_renders_by_url(tmp_path: Path) -> None:
@@ -116,7 +124,8 @@ def test_page_served_by_a_local_server_renders_by_url(tmp_path: Path) -> None:
         "<img src='https://example.com/remote.png' alt='remote'>"
         "<script>const q = new URLSearchParams(location.search);"
         "document.getElementById('t').textContent = 'page ' + q.get('page');</script></body>",
-        encoding="utf-8")
+        encoding="utf-8",
+    )
     handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=str(tmp_path))
     server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()

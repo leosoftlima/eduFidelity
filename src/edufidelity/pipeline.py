@@ -51,9 +51,7 @@ def build_reference_from_html(
     if raw is None:
         raise ReferenceAuthoringError(f"{html}: {record.reason}")
     frame_height = int(raw["pageHeight"])
-    record, raw = renderer.render(
-        html, frame_width, frame_height, screenshot, reference_mode=True
-    )
+    record, raw = renderer.render(html, frame_width, frame_height, screenshot, reference_mode=True)
     if raw is None:
         raise ReferenceAuthoringError(f"{html}: {record.reason}")
 
@@ -121,11 +119,10 @@ def measure(
     snapshot = to_snapshot(raw, reference.frame_width, reference.frame_height)
     # kept so that the pairs can be verified later (development sample, M4)
     (workdir / f"{generated_id}.snapshot.json").write_text(
-        snapshot.model_dump_json(indent=2), encoding="utf-8")
-    correspondence = match_optimal(reference.elements, snapshot.elements, config)
-    scores = element_preservation(
-        correspondence, len(reference.elements), len(snapshot.elements)
+        snapshot.model_dump_json(indent=2), encoding="utf-8"
     )
+    correspondence = match_optimal(reference.elements, snapshot.elements, config)
+    scores = element_preservation(correspondence, len(reference.elements), len(snapshot.elements))
     ped = pedagogical_preservation(reference.elements, correspondence)
 
     row.n_generated = len(snapshot.elements)

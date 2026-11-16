@@ -2,14 +2,32 @@ from edufidelity.matching import match_greedy_iou, match_optimal, normalize_text
 from edufidelity.models import BBox, Element, ElementType, MatchConfig, RefElement, Salience
 
 
-def ref(id: str, text: str, x: float, y: float, type: ElementType = ElementType.TEXT,
-        asset: str | None = None) -> RefElement:
-    return RefElement(id=id, type=type, text=text, asset=asset, salience=Salience.ESSENTIAL,
-                      bbox=BBox(x=x, y=y, w=0.2, h=0.05))
+def ref(
+    id: str,
+    text: str,
+    x: float,
+    y: float,
+    type: ElementType = ElementType.TEXT,
+    asset: str | None = None,
+) -> RefElement:
+    return RefElement(
+        id=id,
+        type=type,
+        text=text,
+        asset=asset,
+        salience=Salience.ESSENTIAL,
+        bbox=BBox(x=x, y=y, w=0.2, h=0.05),
+    )
 
 
-def gen(id: str, text: str, x: float, y: float, type: ElementType = ElementType.TEXT,
-        asset: str | None = None) -> Element:
+def gen(
+    id: str,
+    text: str,
+    x: float,
+    y: float,
+    type: ElementType = ElementType.TEXT,
+    asset: str | None = None,
+) -> Element:
     return Element(id=id, type=type, text=text, asset=asset, bbox=BBox(x=x, y=y, w=0.2, h=0.05))
 
 
@@ -26,10 +44,14 @@ def test_identical_sets_match_completely() -> None:
 
 
 def test_swapped_positions_follow_content_not_place() -> None:
-    reference = [ref("a", "First paragraph of the lesson", 0.1, 0.1),
-                 ref("b", "Second and different paragraph", 0.1, 0.2)]
-    generated = [gen("g1", "Second and different paragraph", 0.1, 0.1),
-                 gen("g2", "First paragraph of the lesson", 0.1, 0.2)]
+    reference = [
+        ref("a", "First paragraph of the lesson", 0.1, 0.1),
+        ref("b", "Second and different paragraph", 0.1, 0.2),
+    ]
+    generated = [
+        gen("g1", "Second and different paragraph", 0.1, 0.1),
+        gen("g2", "First paragraph of the lesson", 0.1, 0.2),
+    ]
     assert pairs(match_optimal(reference, generated)) == {"a": "g2", "b": "g1"}
 
 
@@ -53,10 +75,14 @@ def test_unrelated_content_far_away_is_rejected() -> None:
 
 
 def test_graphics_match_by_asset() -> None:
-    reference = [ref("a", "", 0.1, 0.1, ElementType.GRAPHIC, asset="logo"),
-                 ref("b", "", 0.5, 0.1, ElementType.GRAPHIC, asset="chart")]
-    generated = [gen("g1", "", 0.5, 0.1, ElementType.GRAPHIC, asset="logo"),
-                 gen("g2", "", 0.1, 0.1, ElementType.GRAPHIC, asset="chart")]
+    reference = [
+        ref("a", "", 0.1, 0.1, ElementType.GRAPHIC, asset="logo"),
+        ref("b", "", 0.5, 0.1, ElementType.GRAPHIC, asset="chart"),
+    ]
+    generated = [
+        gen("g1", "", 0.5, 0.1, ElementType.GRAPHIC, asset="logo"),
+        gen("g2", "", 0.1, 0.1, ElementType.GRAPHIC, asset="chart"),
+    ]
     assert pairs(match_optimal(reference, generated)) == {"a": "g1", "b": "g2"}
 
 

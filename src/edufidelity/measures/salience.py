@@ -22,7 +22,5 @@ def pedagogical_preservation(
     scores: dict[Salience, float | None] = {}
     for category in Salience:
         members = [e for e in reference if e.salience is category]
-        scores[category] = (
-            sum(e.id in matched for e in members) / len(members) if members else None
-        )
+        scores[category] = sum(e.id in matched for e in members) / len(members) if members else None
     return scores

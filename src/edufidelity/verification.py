@@ -66,9 +66,11 @@ class PairScores:
         return 2 * p * r / (p + r) if p + r else 0.0
 
     def __add__(self, other: PairScores) -> PairScores:
-        return PairScores(self.true_positive + other.true_positive,
-                          self.false_positive + other.false_positive,
-                          self.false_negative + other.false_negative)
+        return PairScores(
+            self.true_positive + other.true_positive,
+            self.false_positive + other.false_positive,
+            self.false_negative + other.false_negative,
+        )
 
 
 def pair_scores(predicted: Correspondence, gold: VerifiedPairs) -> PairScores:
@@ -99,12 +101,20 @@ def load_dev_sample(folder: Path) -> list[DevItem]:
         if not (sub / "verified.json").exists():
             unfinished.append(sub.name)
             continue
-        items.append(DevItem(
-            name=sub.name,
-            reference=Reference.model_validate_json((sub / "reference.json").read_text("utf-8")),
-            snapshot=DomSnapshot.model_validate_json((sub / "snapshot.json").read_text("utf-8")),
-            verified=VerifiedPairs.model_validate_json((sub / "verified.json").read_text("utf-8")),
-        ))
+        items.append(
+            DevItem(
+                name=sub.name,
+                reference=Reference.model_validate_json(
+                    (sub / "reference.json").read_text("utf-8")
+                ),
+                snapshot=DomSnapshot.model_validate_json(
+                    (sub / "snapshot.json").read_text("utf-8")
+                ),
+                verified=VerifiedPairs.model_validate_json(
+                    (sub / "verified.json").read_text("utf-8")
+                ),
+            )
+        )
     if unfinished:
         raise ValueError(f"unverified items in {folder}: {', '.join(unfinished)}")
     if not items:
@@ -118,6 +128,7 @@ def sample_digest(items: Sequence[DevItem]) -> str:
 
 
 # ------------------------------------------------------------------ review page
+
 
 def _data_uri(png: Path) -> str:
     return "data:image/png;base64," + base64.b64encode(png.read_bytes()).decode("ascii")
@@ -178,9 +189,11 @@ def review_page(
             # boxes are normalized by the reference frame; the screenshot may be taller
             top = b.y * reference.frame_height / height * 100
             hgt = b.h * reference.frame_height / height * 100
-            out.append(f'<div class="box" data-side="{side}" data-id="{html.escape(e.id)}" '
-                       f'style="left:{b.x * 100:.3f}%;top:{top:.3f}%;width:{b.w * 100:.3f}%;'
-                       f'height:{hgt:.3f}%"></div>')
+            out.append(
+                f'<div class="box" data-side="{side}" data-id="{html.escape(e.id)}" '
+                f'style="left:{b.x * 100:.3f}%;top:{top:.3f}%;width:{b.w * 100:.3f}%;'
+                f'height:{hgt:.3f}%"></div>'
+            )
         return "".join(out)
 
     rows = []
@@ -188,13 +201,16 @@ def review_page(
         options = ['<option value="">— no pair (missing) —</option>']
         for gid, text in by_type.get(r.type.value, []):
             selected = " selected" if proposed_of.get(r.id) == gid else ""
-            options.append(f'<option value="{html.escape(gid)}"{selected}>'
-                           f'{html.escape(gid)} · {html.escape(text)}</option>')
+            options.append(
+                f'<option value="{html.escape(gid)}"{selected}>'
+                f"{html.escape(gid)} · {html.escape(text)}</option>"
+            )
         proposed_id = html.escape(proposed_of.get(r.id, ""))
         rows.append(
             f'<tr data-ref="{html.escape(r.id)}" data-proposed="{proposed_id}">'
             f"<td>{html.escape(r.id)}</td><td>{r.type.value}</td>"
-            f"<td>{html.escape(r.text[:60])}</td><td><select>{''.join(options)}</select></td></tr>")
+            f"<td>{html.escape(r.text[:60])}</td><td><select>{''.join(options)}</select></td></tr>"
+        )
     payload = json.dumps({"interface_id": reference.interface_id, "generated_id": generated_id})
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">

@@ -47,31 +47,57 @@ def text(i: str, words: str, y: float, cls: type = RefElement) -> Element:
 
 def moved_item() -> DevItem:
     """One pair the provisional defaults reject: text slightly changed and moved far."""
-    reference = Reference(interface_id="r", frame_width=1280, frame_height=800, elements=[
-        text("a", "Compost needs greens and browns in balance", 0.1),
-        text("b", "Turn the pile every week to add air", 0.3)])
-    snapshot = DomSnapshot(frame_width=1280, frame_height=800, page_height=800, elements=[
-        text("g1", "Compost needs greens and brown in balance!", 0.85, Element),
-        text("g2", "Turn the pile every week to add air", 0.3, Element)])
-    verified = VerifiedPairs(interface_id="r", generated_id="x", pairs=[("a", "g1"), ("b", "g2")],
-                             verifier="test", source="manual")
+    reference = Reference(
+        interface_id="r",
+        frame_width=1280,
+        frame_height=800,
+        elements=[
+            text("a", "Compost needs greens and browns in balance", 0.1),
+            text("b", "Turn the pile every week to add air", 0.3),
+        ],
+    )
+    snapshot = DomSnapshot(
+        frame_width=1280,
+        frame_height=800,
+        page_height=800,
+        elements=[
+            text("g1", "Compost needs greens and brown in balance!", 0.85, Element),
+            text("g2", "Turn the pile every week to add air", 0.3, Element),
+        ],
+    )
+    verified = VerifiedPairs(
+        interface_id="r",
+        generated_id="x",
+        pairs=[("a", "g1"), ("b", "g2")],
+        verifier="test",
+        source="manual",
+    )
     return DevItem(name="x", reference=reference, snapshot=snapshot, verified=verified)
 
 
 def correspondence(pairs: list[tuple[str, str]]) -> Correspondence:
-    return Correspondence(matches=[Match(ref_id=r, gen_id=g, cost=0, content_cost=0,
-                                         spatial_cost=0, iou=1) for r, g in pairs],
-                          missing=[], additional=[], method="t", config_digest="t")
+    return Correspondence(
+        matches=[
+            Match(ref_id=r, gen_id=g, cost=0, content_cost=0, spatial_cost=0, iou=1)
+            for r, g in pairs
+        ],
+        missing=[],
+        additional=[],
+        method="t",
+        config_digest="t",
+    )
 
 
 def gold(pairs: list[tuple[str, str]]) -> VerifiedPairs:
-    return VerifiedPairs(interface_id="r", generated_id="x", pairs=pairs, verifier="t",
-                         source="manual")
+    return VerifiedPairs(
+        interface_id="r", generated_id="x", pairs=pairs, verifier="t", source="manual"
+    )
 
 
 def test_pair_scores_count_each_kind_of_error() -> None:
-    s = pair_scores(correspondence([("a", "1"), ("b", "9")]), gold([("a", "1"), ("b", "2"),
-                                                                    ("c", "3")]))
+    s = pair_scores(
+        correspondence([("a", "1"), ("b", "9")]), gold([("a", "1"), ("b", "2"), ("c", "3")])
+    )
     assert (s.true_positive, s.false_positive, s.false_negative) == (1, 1, 2)
     assert s.precision == pytest.approx(0.5) and s.recall == pytest.approx(1 / 3)
     assert pooled([s, s]).true_positive == 2
@@ -85,7 +111,8 @@ def test_undefined_scores_are_none_not_zero() -> None:
 def test_grid_keeps_the_weights_complementary() -> None:
     configs = configurations()
     assert len(configs) == len(GRID["text_similarity_floor"]) * len(GRID["max_cost"]) * len(
-        GRID["content_weight"])
+        GRID["content_weight"]
+    )
     assert all(c.content_weight + c.spatial_weight == pytest.approx(1.0) for c in configs)
 
 
@@ -99,11 +126,17 @@ def test_tuning_finds_a_configuration_that_recovers_the_lost_pair() -> None:
 def test_ties_go_to_the_defaults() -> None:
     item = moved_item()
     easy = item.model_copy(update={"verified": gold([("b", "g2")])})
-    snapshot = DomSnapshot(frame_width=1280, frame_height=800, page_height=800,
-                           elements=[item.snapshot.elements[1]])
-    easy = easy.model_copy(update={"snapshot": snapshot,
-                                   "reference": item.reference.model_copy(
-                                       update={"elements": [item.reference.elements[1]]})})
+    snapshot = DomSnapshot(
+        frame_width=1280, frame_height=800, page_height=800, elements=[item.snapshot.elements[1]]
+    )
+    easy = easy.model_copy(
+        update={
+            "snapshot": snapshot,
+            "reference": item.reference.model_copy(
+                update={"elements": [item.reference.elements[1]]}
+            ),
+        }
+    )
     assert tune([easy]).best == MatchConfig()
 
 
@@ -141,8 +174,12 @@ def test_review_page_saves_the_verified_pairs(tmp_path: Path) -> None:
         Image.new("RGB", (1280, 800), "white").save(tmp_path / name)
     proposed = match_optimal(item.reference.elements, item.snapshot.elements)
     page_path = tmp_path / "review.html"
-    page_path.write_text(review_page(item.reference, item.snapshot, proposed, tmp_path / "r.png",
-                                     tmp_path / "g.png", "x"), encoding="utf-8")
+    page_path.write_text(
+        review_page(
+            item.reference, item.snapshot, proposed, tmp_path / "r.png", tmp_path / "g.png", "x"
+        ),
+        encoding="utf-8",
+    )
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page()
@@ -160,8 +197,11 @@ def test_review_page_saves_the_verified_pairs(tmp_path: Path) -> None:
 
 @pytest.mark.browser
 def test_synthetic_sample_knows_the_true_pairs(tmp_path: Path) -> None:
-    chosen = [p for p in DEV_PERTURBATIONS
-              if p.name in {"identity", "swap-essential", "reword-essential", "blank"}]
+    chosen = [
+        p
+        for p in DEV_PERTURBATIONS
+        if p.name in {"identity", "swap-essential", "reword-essential", "blank"}
+    ]
     synthetic_dev_sample(PAGES, tmp_path / "build", tmp_path / "dev", chosen)
     items = {i.name: i for i in load_dev_sample(tmp_path / "dev")}
     assert len(items) == 3 * len(chosen)

@@ -16,8 +16,11 @@ from edufidelity.perturbations import (
 pytestmark = pytest.mark.browser
 
 PAGES = Path(__file__).resolve().parents[1] / "examples" / "pages"
-SUBSET = [p for p in PERTURBATIONS if p.name in {"identity", "remove-essential", "shift-32px",
-                                                 "hue-180deg", "blank"}]
+SUBSET = [
+    p
+    for p in PERTURBATIONS
+    if p.name in {"identity", "remove-essential", "shift-32px", "hue-180deg", "blank"}
+]
 
 
 @pytest.fixture(scope="module")
@@ -64,9 +67,7 @@ def test_blank_page_loses_every_element(rows: list[PerturbationRow], page: str) 
     assert row.ssim is not None and row.ssim < 1.0
 
 
-def test_report_is_written_and_counts_checks(
-    rows: list[PerturbationRow], tmp_path: Path
-) -> None:
+def test_report_is_written_and_counts_checks(rows: list[PerturbationRow], tmp_path: Path) -> None:
     report = write_report(rows, tmp_path)
     text = report.read_text("utf-8")
     assert "Not results of the study" in text

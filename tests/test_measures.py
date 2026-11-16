@@ -22,16 +22,26 @@ SALIENCES = list(Salience)
 
 def make_reference(n: int) -> list[RefElement]:
     return [
-        RefElement(id=f"r{i}", type=ElementType.TEXT, text=f"distinct sentence number {i}",
-                   salience=SALIENCES[i % 3], bbox=BBox(x=0.1, y=0.08 * i, w=0.5, h=0.05))
+        RefElement(
+            id=f"r{i}",
+            type=ElementType.TEXT,
+            text=f"distinct sentence number {i}",
+            salience=SALIENCES[i % 3],
+            bbox=BBox(x=0.1, y=0.08 * i, w=0.5, h=0.05),
+        )
         for i in range(n)
     ]
 
 
 def copy_as_generated(reference: list[RefElement], dx: float = 0.0) -> list[Element]:
     return [
-        Element(id=f"g{i}", type=e.type, text=e.text, asset=e.asset,
-                bbox=BBox(x=e.bbox.x + dx, y=e.bbox.y, w=e.bbox.w, h=e.bbox.h))
+        Element(
+            id=f"g{i}",
+            type=e.type,
+            text=e.text,
+            asset=e.asset,
+            bbox=BBox(x=e.bbox.x + dx, y=e.bbox.y, w=e.bbox.w, h=e.bbox.h),
+        )
         for i, e in enumerate(reference)
     ]
 
@@ -78,7 +88,7 @@ def test_removing_an_element_never_increases_preservation(n: int, data: st.DataO
     reference = make_reference(n)
     generated = copy_as_generated(reference)
     removed = data.draw(st.integers(min_value=0, max_value=n - 1))
-    fewer = generated[:removed] + generated[removed + 1:]
+    fewer = generated[:removed] + generated[removed + 1 :]
 
     before = match_optimal(reference, generated)
     after = match_optimal(reference, fewer)

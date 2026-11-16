@@ -52,8 +52,9 @@ class CalibrationData:
 
     def human_mean(self) -> NDArray[np.float64]:
         """Mean rating of each page on the 1 .. n_levels scale (NaN if unrated)."""
-        sums = np.bincount(self.rating_page, weights=self.rating_level + 1.0,
-                           minlength=len(self.page_ids))
+        sums = np.bincount(
+            self.rating_page, weights=self.rating_level + 1.0, minlength=len(self.page_ids)
+        )
         counts = np.bincount(self.rating_page, minlength=len(self.page_ids))
         with np.errstate(invalid="ignore", divide="ignore"):
             return np.asarray(sums / counts, dtype=np.float64)
@@ -64,10 +65,12 @@ class CalibrationData:
         remap[index] = np.arange(len(index))
         keep = page_mask[self.rating_page]
         return CalibrationData(
-            page_ids=self.page_ids[index], interface=self.interface[index],
+            page_ids=self.page_ids[index],
+            interface=self.interface[index],
             domain=self.domain[index],
             features={k: v[index] for k, v in self.features.items()},
-            rating_page=remap[self.rating_page[keep]], rating_level=self.rating_level[keep],
+            rating_page=remap[self.rating_page[keep]],
+            rating_level=self.rating_level[keep],
             n_levels=self.n_levels,
         )
 
@@ -87,9 +90,7 @@ class CalibrationData:
         return concatenate(parts, self.n_levels)
 
 
-def concatenate(
-    parts: Sequence[tuple[CalibrationData, str]], n_levels: int
-) -> CalibrationData:
+def concatenate(parts: Sequence[tuple[CalibrationData, str]], n_levels: int) -> CalibrationData:
     offsets = np.cumsum([0] + [len(p.page_ids) for p, _ in parts])
     names = parts[0][0].features.keys()
     return CalibrationData(
@@ -97,8 +98,9 @@ def concatenate(
         interface=np.concatenate([np.char.add(p.interface, s) for p, s in parts]),
         domain=np.concatenate([p.domain for p, _ in parts]),
         features={k: np.concatenate([p.features[k] for p, _ in parts]) for k in names},
-        rating_page=np.concatenate([p.rating_page + o for (p, _), o in zip(parts, offsets,
-                                                                             strict=False)]),
+        rating_page=np.concatenate(
+            [p.rating_page + o for (p, _), o in zip(parts, offsets, strict=False)]
+        ),
         rating_level=np.concatenate([p.rating_level for p, _ in parts]),
         n_levels=n_levels,
     )

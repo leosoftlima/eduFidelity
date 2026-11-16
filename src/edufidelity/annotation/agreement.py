@@ -42,8 +42,9 @@ def coincidences(data: ArrayLike) -> tuple[NDArray[np.float64], NDArray[np.float
     return values[keep], o[np.ix_(keep, keep)]
 
 
-def _delta2(values: NDArray[np.float64], marginals: NDArray[np.float64],
-            level: Level) -> NDArray[np.float64]:
+def _delta2(
+    values: NDArray[np.float64], marginals: NDArray[np.float64], level: Level
+) -> NDArray[np.float64]:
     c, k = np.meshgrid(values, values, indexing="ij")
     if level == "nominal":
         return np.asarray(c != k, dtype=np.float64)
