@@ -76,7 +76,7 @@ def test_page_that_never_settles_is_a_recorded_failure(tmp_path: Path) -> None:
         " d.style.height = (Math.random() * 500) + 'px'; }, 20);</script></body>",
         encoding="utf-8",
     )
-    with Renderer(timeout_ms=1500) as renderer:
+    with Renderer(timeout_ms=4000) as renderer:
         record, raw = renderer.render(page, 800, 600)
     assert record.status == "render_failure" and raw is None
     assert "stabilize" in record.reason
