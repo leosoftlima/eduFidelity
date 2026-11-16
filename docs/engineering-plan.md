@@ -114,7 +114,7 @@ Planned: `figma.py` (design file to reference), `measures/uiclip.py`, `agreement
   to nearly zero although nothing else changed. Options: report mean IoU as defined;
   add a shift-tolerant variant (IoU after removing the median displacement) as a
   diagnostic; or compare relative arrangement. A decision for the authors.
-- **Q2. Roles in the reference.** Design tools do not carry control semantics. The
+- **Q2. Roles in the reference.** *M1 exporter: a configurable naming rule on node and component names, with a provisional default list; the authors decide the convention.* Design tools do not carry control semantics. The
   `control` type on the reference side must come from a naming convention or manual
   annotation, and the protocol must say which.
 - **Q3. UIClip on long pages.** *Partly answered in M1: the checkpoint is applied with

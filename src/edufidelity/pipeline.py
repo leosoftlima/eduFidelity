@@ -91,7 +91,7 @@ def measure(
     renderer: Renderer,
     reference: Reference,
     reference_png: Path,
-    generated_html: Path,
+    generated_html: Path | str,
     generated_id: str,
     workdir: Path,
     config: MatchConfig | None = None,

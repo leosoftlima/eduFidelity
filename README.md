@@ -26,7 +26,7 @@ compute come from small synthetic pages written to test the pipeline.
 | Preservation by salience category (RQ3) | Implemented; annotation protocol drafted in M2 |
 | Human evaluation kit and inter-rater agreement (RQ1) | Implemented: salience guide and brief template ([drafts](docs/annotation/)), annotation sheets with majority resolution, blind rating assignment, Krippendorff's alpha checked against published values. Not yet used with people |
 | Ordinal calibration, leave-one-domain-out validation, ablation (RQ4) | Implemented and rehearsed on **simulated** raters ([report](supplementary/calibration/README.md)); no human ratings yet |
-| Reference representation from Figma | Planned |
+| Reference representation from Figma | Implemented from the public Figma file format; which elements count as controls is a **provisional** naming rule (open question Q2) |
 
 To run the synthetic examples (Python 3.11+ and [uv](https://docs.astral.sh/uv/)):
 

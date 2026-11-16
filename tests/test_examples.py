@@ -103,3 +103,34 @@ def test_table_matches_the_committed_one(table: dict[str, MeasureRow]) -> None:
             value = getattr(row, name)
             assert value == pytest.approx(float(expected[generated_id][name]), abs=tolerance), (
                 generated_id, name)
+
+
+def test_page_served_by_a_local_server_renders_by_url(tmp_path: Path) -> None:
+    """Single-page applications need a server; only the allowed local origin opens."""
+    import functools
+    import http.server
+    import threading
+
+    (tmp_path / "index.html").write_text(
+        "<!doctype html><body><h1 id='t'>waiting</h1>"
+        "<img src='https://example.com/remote.png' alt='remote'>"
+        "<script>const q = new URLSearchParams(location.search);"
+        "document.getElementById('t').textContent = 'page ' + q.get('page');</script></body>",
+        encoding="utf-8")
+    handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=str(tmp_path))
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), handler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    origin = f"http://127.0.0.1:{server.server_address[1]}"
+    try:
+        with Renderer(allowed_origins=(origin,)) as renderer:
+            record, raw = renderer.render(f"{origin}/index.html?page=3", 800, 600)
+    finally:
+        server.shutdown()
+    assert record.status == "ok" and raw is not None
+    texts = [e.get("text") for e in raw["elements"]]
+    assert "page 3" in texts
+
+
+def test_only_local_origins_can_be_allowed() -> None:
+    with pytest.raises(ValueError, match="local origins"):
+        Renderer(allowed_origins=("https://example.com",))

@@ -4,7 +4,9 @@
 * Viewport equal to the reference frame.
 * Animations and transitions disabled; reduced motion requested.
 * Network closed: only ``file:`` and ``data:`` resources load, so a render cannot
-  depend on a remote asset that changes or disappears.
+  depend on a remote asset that changes or disappears. A page served by a local server
+  (a single-page application, for example) can be rendered by URL; only the origins
+  listed in ``allowed_origins`` are then opened, and nothing else.
 * A page is captured only after load, fonts ready, images decoded and two
   consecutive identical layout signatures. A page that never settles is a
   ``render_failure`` with a reason; it is never silently dropped.
@@ -34,9 +36,18 @@ async () => {
 class Renderer:
     """Reuses one browser across pages. Use as a context manager."""
 
-    def __init__(self, timeout_ms: int = 15_000, poll_ms: int = 100) -> None:
+    def __init__(
+        self,
+        timeout_ms: int = 15_000,
+        poll_ms: int = 100,
+        allowed_origins: tuple[str, ...] = (),
+    ) -> None:
         self.timeout_ms = timeout_ms
         self.poll_ms = poll_ms
+        for origin in allowed_origins:
+            if not origin.startswith(("http://127.0.0.1:", "http://localhost:")):
+                raise ValueError(f"only local origins can be allowed: {origin!r}")
+        self.allowed_origins = tuple(o.rstrip("/") + "/" for o in allowed_origins)
         self._playwright: Playwright | None = None
         self._browser: Browser | None = None
 
@@ -58,7 +69,7 @@ class Renderer:
 
     def render(
         self,
-        html: Path,
+        html: Path | str,
         frame_width: int,
         frame_height: int,
         screenshot: Path | None = None,
@@ -79,11 +90,14 @@ class Renderer:
             device_scale_factor=1,
             reduced_motion="reduce",
         )
-        context.route("**/*", _local_only)
+        context.route("**/*", self._route)
         page = context.new_page()
         started = time.monotonic()
         try:
-            page.goto(html.resolve().as_uri(), wait_until="load", timeout=self.timeout_ms)
+            target = html if isinstance(html, str) else html.resolve().as_uri()
+            if isinstance(html, str) and not html.startswith(self.allowed_origins or ("file:",)):
+                raise ValueError(f"{html!r} is not under an allowed origin")
+            page.goto(target, wait_until="load", timeout=self.timeout_ms)
             page.add_style_tag(content=FREEZE_CSS)
             page.evaluate(_READY_JS)
             if not self._wait_stable(page, started):
@@ -121,12 +135,12 @@ class Renderer:
         return False
 
 
-def _local_only(route: Route) -> None:
-    url = route.request.url
-    if url.startswith(("file:", "data:", "about:")):
-        route.continue_()
-    else:
-        route.abort()
+    def _route(self, route: Route) -> None:
+        url = route.request.url
+        if url.startswith(("file:", "data:", "about:", "blob:", *self.allowed_origins)):
+            route.continue_()
+        else:
+            route.abort()
 
 
 def to_snapshot(raw: dict[str, Any], frame_width: int, frame_height: int) -> DomSnapshot:

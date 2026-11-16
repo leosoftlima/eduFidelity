@@ -9,10 +9,22 @@ from pathlib import Path
 from .matching import match_optimal
 from .models import DomSnapshot, Reference
 
-COMMANDS = ("review-pairs", "dev-sample-synthetic", "tune-matching", "freeze-matching")
+COMMANDS = ("review-pairs", "dev-sample-synthetic", "tune-matching", "freeze-matching",
+            "figma-reference")
 
 
 def register(commands: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
+    fig = commands.add_parser("figma-reference",
+                              help="reference representation from a Figma file JSON")
+    fig.add_argument("file", type=Path, help="JSON of GET /v1/files/:key")
+    fig.add_argument("frame", help="node id of the frame")
+    fig.add_argument("--domain", default="")
+    fig.add_argument("--course", default="")
+    fig.add_argument("--interface-id", default=None)
+    fig.add_argument("--control-pattern", action="append", default=None,
+                     help="regex for control names (repeatable; default: provisional list)")
+    fig.add_argument("--out", type=Path, required=True)
+
     rev = commands.add_parser("review-pairs", help="page to verify the proposed pairs by hand")
     rev.add_argument("reference", type=Path, help="reference JSON")
     rev.add_argument("reference_png", type=Path)
@@ -42,6 +54,24 @@ def register(commands: argparse._SubParsersAction[argparse.ArgumentParser]) -> N
 def run(args: argparse.Namespace) -> int:
     from .tuning import freeze, load_config, report, tune
     from .verification import load_dev_sample, review_page
+
+    if args.command == "figma-reference":
+        import json
+
+        from .figma import DEFAULT_CONTROL_PATTERNS, ExportRules, frame_to_reference
+
+        document = json.loads(args.file.read_text("utf-8"))
+        rules = ExportRules(
+            control_patterns=tuple(args.control_pattern or DEFAULT_CONTROL_PATTERNS),
+            component_names={k: v.get("name", "")
+                             for k, v in (document.get("components") or {}).items()})
+        reference = frame_to_reference(document, args.frame, interface_id=args.interface_id,
+                                       domain=args.domain, course=args.course, rules=rules)
+        args.out.write_text(reference.model_dump_json(indent=2), encoding="utf-8")
+        counts = {t: sum(e.type.value == t for e in reference.elements)
+                  for t in ("text", "graphic", "control")}
+        print(f"{args.out}: {counts}; salience not annotated yet")
+        return 0
 
     if args.command == "review-pairs":
         reference = Reference.model_validate_json(args.reference.read_text("utf-8"))
